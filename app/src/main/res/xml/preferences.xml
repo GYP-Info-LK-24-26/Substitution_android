@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:id="@+id/settings_container"
+
+    <!--<SwitchPreferenceCompat
+        app:key="notifications"
+        app:title="Enable message notifications"/>
+        <Preference
+        app:key="feedback"
+        app:title="Send feedback"
+        app:summary="Report technical issues or suggest new features"/>
+        !-->
+
+    <EditTextPreference
+        app:key="first_name"
+        app:title="Enter first name"/>
+
+    <EditTextPreference
+        app:key="last_name"
+        app:title="Enter last name"/>
+
+    <EditTextPreference
+        app:key="birth_date"
+        app:title="Enter birth date (YYYY-MM-DD)"/>
+
+</PreferenceScreen>

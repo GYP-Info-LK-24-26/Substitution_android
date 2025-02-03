@@ -41,4 +41,13 @@ public class SecondFragment extends Fragment {
         binding = null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        MainActivity.getInstance().second = true;
+        MainActivity.getInstance().settings = false;
+        MainActivity.getInstance().SUBSTITUTION_TABLE.updateWholeTable();
+    }
+
 }

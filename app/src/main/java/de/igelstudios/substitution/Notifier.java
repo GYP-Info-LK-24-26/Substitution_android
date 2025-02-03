@@ -1,5 +1,6 @@
 package de.igelstudios.substitution;
 
+import static android.icu.number.NumberRangeFormatter.with;
 import static androidx.core.content.ContextCompat.getSystemService;
 
 import android.Manifest;
@@ -9,6 +10,9 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -37,32 +41,26 @@ public class Notifier {
     }
 
     public void notifieChanges(List<Substitution> changes){
-        if (ActivityCompat.checkSelfPermission(this.context, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
-            return;
-        }
+        if(changes.isEmpty())return;
+        MainActivity.requestPermissions();
+        MainActivity.getInstance().SUBSTITUTION_TABLE.updateShownTable();
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                //.setSmallIcon(R.drawable.new_mail)
+                .setSmallIcon(R.drawable.notify)
                 .setContentTitle("Vertretungs Plan informationen")
-                .setContentText("Es gibt neuigkeiten zu " + changes.size() + " stunden")
+                //.setContentText("Es gibt neuigkeiten zu " + changes.size() + " stunden")
                 //.setLargeIcon(emailObject.getSenderAvatar())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(toText(changes)))
+                        .bigText( toText(changes)))
                 .build();
 
-        NotificationManagerCompat compat;
+
+        NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
         compat.notify(0/*TODO replace with actual id*/,notification);
     }
 
     public String toText(List<Substitution> changes){
         StringBuilder builder = new StringBuilder();
+        builder.append("Es gibt neuigkeiten zu ").append(changes.size()).append(" Stunden\n");
         for (Substitution change : changes) {
             builder.append(change.lesson).append(":").append(change.teacher);
             if(change.teacher_new != null && !change.teacher_new.isEmpty())
