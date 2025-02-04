@@ -20,6 +20,10 @@ public class Config {
         return instance;
     }
 
+    public String getKey(){
+        return "7YHgB+.'AtBdWB&";
+    }
+
     public String getName() {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getString("first_name","");
     }

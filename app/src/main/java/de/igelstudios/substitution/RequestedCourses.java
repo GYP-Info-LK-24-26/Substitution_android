@@ -90,6 +90,14 @@ public class RequestedCourses extends SQLiteOpenHelper {
             this.selected = selected;
         }
 
+        public Course(int lesson,String teacher,int day,int course,boolean selected){
+            this.lesson = lesson;
+            this.teacher = teacher;
+            this.day = day;
+            this.course = course;
+            this.selected = selected;
+        }
+
         public Course(int lesson,String teacher,int day,int course){
             this.lesson = lesson;
             this.teacher = teacher;
@@ -134,11 +142,11 @@ public class RequestedCourses extends SQLiteOpenHelper {
         if(loaded)return;
         loaded = true;
         SQLiteDatabase db = this.getReadableDatabase();
-        try(Cursor cr = db.rawQuery("SELECT Lesson.teacher,Lesson.lessonTime,Lesson.day FROM Lesson INNER JOIN SELECTED_COURSES ON" +
+        try(Cursor cr = db.rawQuery("SELECT Lesson.lessonTime,Lesson.teacher,Lesson.day,Lesson.course FROM Lesson INNER JOIN SELECTED_COURSES ON" +
                 " lesson.course = SELECTED_COURSES.course",null)){
             if(cr.moveToFirst()){
                 do{
-                    courses.add(new Course(cr.getInt(0),cr.getString(1),cr.getInt(2),true));
+                    courses.add(new Course(cr.getInt(0),cr.getString(1),cr.getInt(2),cr.getInt(3),true));
                 }while (cr.moveToNext());
             }
         }
@@ -159,10 +167,15 @@ public class RequestedCourses extends SQLiteOpenHelper {
             }
         }
 
-
-
         for (RequestedCourses.Course course : all_curses) {
-            sorted_courses.get(course.course - 1).get(course.day - 1).add(course);
+            for (Course cours : courses) {
+                if(cours.course == course.course){
+                    course.selected = true;
+                    break;
+                }
+            }
+            sorted_courses.get(course.lesson - 1).get(course.day - 1).add(course);
+
         }
     }
 
@@ -172,8 +185,9 @@ public class RequestedCourses extends SQLiteOpenHelper {
         Calendar now = Calendar.getInstance();
 
         for (Substitution change : changes) {
-            now.setTime(new Date(Integer.parseInt(change.date.substring(6,9)),Integer.parseInt(change.date.substring(3,4)),Integer.parseInt(change.date.substring(0,1))));
-            int dayID = now.get(Calendar.DAY_OF_WEEK);
+            //now.setTime(new Date(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2))));
+            now.set(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2)));
+            int dayID = now.get(Calendar.DAY_OF_WEEK) - 1;
             for (Course course : courses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);
@@ -185,11 +199,48 @@ public class RequestedCourses extends SQLiteOpenHelper {
         return member;
     }
 
-    public void toggle(int day,int lesson,int id){
+    public void toggle(Course course){
+        if(course.selected){
+            remove(course.course);
+            for (Course edit : COURSE_LIST) {
+                if(course.course == edit.course) edit.selected = false;
+            }
 
+            for (List<List<Course>> sortedCours : sorted_courses) {
+                for (List<Course> sortedCour : sortedCours) {
+                    for (Course edit : sortedCour) {
+                        if(course.course == edit.course)edit.selected = false;
+                    }
+                }
+            }
+        } else{
+            add(course.course);
+
+            for (Course edit : COURSE_LIST) {
+                if(course.course == edit.course) edit.selected = true;
+            }
+
+            for (List<List<Course>> sortedCours : sorted_courses) {
+                for (List<Course> sortedCour : sortedCours) {
+                    for (Course edit : sortedCour) {
+                        if(course.course == edit.course) edit.selected = true;
+                    }
+                }
+            }
+        }
     }
 
-    public void add(int lesson,String teacher){
+    public void add(int course_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("INSERT INTO SELECTED_COURSES (course) VALUES (?);",new String[]{String.valueOf(course_id)});
+    }
+
+    public void remove(int course_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM SELECTED_COURSES WHERE course = ?;",new String[]{String.valueOf(course_id)});
+    }
+
+    /*public void add(int lesson,String teacher){
         SQLiteDatabase db = this.getReadableDatabase();
         try(Cursor cr = db.rawQuery("SELECT Lesson.course FROM Lesson WHERE Lesson.lessonTime = ? AND Lesson.teacher = ?",new String[]{String.valueOf(lesson),teacher})){
             if(cr.moveToFirst()){
@@ -207,7 +258,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 db.execSQL("DELETE FROM SELECTED_COURSES WHERE course = ?",new String[]{String.valueOf(id)});
             }
         }
-    }
+    }*/
 
     public List<Course> getFullList(){
         SQLiteDatabase db = this.getReadableDatabase();

@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Scheduler.schedule(this.getApplicationContext());
+        MidnightClearer.schedule(this.getApplicationContext());
     }
 
     @Override

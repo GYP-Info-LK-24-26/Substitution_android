@@ -25,7 +25,7 @@ import de.igelstudios.substitution.databinding.FragmentFirstBinding;
 import de.igelstudios.substitution.databinding.FragmentTableBinding;
 
 public class FullTableFragment extends Fragment {
-    public static class Listener implements View.OnTouchListener{
+    public class Listener implements View.OnTouchListener{
         private int day,lesson;
 
         public Listener(int day,int lesson){
@@ -44,7 +44,10 @@ public class FullTableFragment extends Fragment {
                 // Convert the touch position to a line number
                 int lineNumber = textView.getLayout().getLineForVertical(y);
 
-                MainActivity.getInstance().COURSES.toggle(day,lesson,lineNumber);
+                if(MainActivity.getInstance().COURSES.sorted_courses.get(lesson).get(day).size() > lineNumber) {
+                    MainActivity.getInstance().COURSES.toggle(MainActivity.getInstance().COURSES.sorted_courses.get(lesson).get(day).get(lineNumber));
+                    FullTableFragment.this.update();
+                }
                 v.performClick();
                 return true; // Consume the event
             }
@@ -65,24 +68,9 @@ public class FullTableFragment extends Fragment {
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        MainActivity.getInstance().settings = true;
-        MainActivity.getInstance().getBinding().fab.hide();
+
+    public void update(){
         List<List<List<RequestedCourses.Course>>> courses = MainActivity.getInstance().COURSES.sorted_courses;
-
-        /*for (int i = 0; i < 11; i++) {
-            courses.add(new ArrayList<>());
-            for (int j = 0; j < 5; j++) {
-                courses.get(i).add(new ArrayList<>());
-            }
-        }
-
-        List<RequestedCourses.Course> list = MainActivity.getInstance().COURSES.getFullList();
-        for (RequestedCourses.Course course : list) {
-            courses.get(course.lesson - 1).get(course.day - 1).add(course);
-        }*/
 
         TableLayout table = MainActivity.getInstance().findViewById(R.id.sub_table);
         table.removeAllViews();
@@ -136,11 +124,12 @@ public class FullTableFragment extends Fragment {
                 }
                 SpannableString span = new SpannableString(buffer.toString());
                 for (Pair<Integer, Integer> color : colors) {
-                    span.setSpan(new ForegroundColorSpan(0x00FF00),color.first,color.second,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    span.setSpan(new ForegroundColorSpan(0xFF00FF00),color.first,color.second,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
 
-                text.setText(buffer.toString());
-                text.setTextColor(MainActivity.textColor.toArgb());
+                /*text.setText(buffer.toString());
+                text.setTextColor(MainActivity.textColor.toArgb());*/
+                text.setText(span);
 
                 text.setOnTouchListener(new Listener(j,i));
 
@@ -148,6 +137,15 @@ public class FullTableFragment extends Fragment {
             }
             table.addView(row);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.getInstance().settings = true;
+        MainActivity.getInstance().getBinding().fab.hide();
+
+        update();
     }
 
     @Override

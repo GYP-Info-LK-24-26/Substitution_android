@@ -29,8 +29,12 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -73,6 +77,7 @@ public class Fetcher extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         try(Cursor cr = db.rawQuery("SELECT * FROM Substitution",null)){
             List<Substitution> remote = this.fetchRemote();
+            if(remote == null)return new ArrayList<>();
             List<Substitution> known = new ArrayList<>();
 
             if(cr.moveToFirst()){
@@ -118,6 +123,14 @@ public class Fetcher extends SQLiteOpenHelper {
         }
     }
 
+    public void cleanOld(){
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -1);
+        String str = cal.getTime().getDay() + "." + cal.getTime().getMonth() + "." + cal.getTime().getYear();
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM Substitiution WHERE date = ?",new String[]{str});
+    }
+
     private boolean contains(List<Substitution> list,Substitution current){
         for (Substitution substitution : list) {
             if(substitution.lesson == current.lesson && substitution.teacher.equals(current.teacher))return true;
@@ -132,8 +145,7 @@ public class Fetcher extends SQLiteOpenHelper {
     }
 
     private void remove(Substitution substitution,SQLiteDatabase db) {
-        Cursor cr = db.rawQuery("DELETE FROM Substitution WHERE Lesson = ? AND Teacher = ?",new String[]{String.valueOf(substitution.lesson),substitution.teacher});
-        cr.close();
+        db.execSQL("DELETE FROM Substitution WHERE Lesson = ? AND Teacher = ?",new String[]{String.valueOf(substitution.lesson),substitution.teacher});
     }
 
     private List<Substitution> fetchRemote() {
@@ -162,9 +174,11 @@ public class Fetcher extends SQLiteOpenHelper {
             List<Substitution> subs = new ArrayList<>();
             String data = future.get();
             if(data.charAt(0) == 'E'){
-                //TODO error occurred
+                MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                return null;
             }else if(data.equals("69420")){
-                //TODO wrong credentials
+                MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                return null;
             }else{
                 JSONArray object = new JSONArray(data);
                 for (int i = 0; i < object.length(); i++) {
@@ -219,7 +233,7 @@ public class Fetcher extends SQLiteOpenHelper {
             urlConnection.setDoOutput(true);
 
             try(OutputStream os = urlConnection.getOutputStream()) {
-                String json = "[\"" + Config.get().getName() + "\",\"" + Config.get().getLast_name() + "\",\"" + Config.get().getBirth_date() + "\"]";
+                String json = "[\"" + Config.get().getName() + "\",\"" + Config.get().getLast_name() + "\",\"" + Config.get().getBirth_date() + "\",\"" + Config.get().getKey() + "\"]";
                 byte[] input = json.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }

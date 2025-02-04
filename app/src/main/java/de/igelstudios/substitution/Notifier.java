@@ -41,6 +41,7 @@ public class Notifier {
     }
 
     public void notifieChanges(List<Substitution> changes){
+        changes = MainActivity.getInstance().COURSES.strip(changes);
         if(changes.isEmpty())return;
         MainActivity.requestPermissions();
         MainActivity.getInstance().SUBSTITUTION_TABLE.updateShownTable();
@@ -58,9 +59,20 @@ public class Notifier {
         compat.notify(0/*TODO replace with actual id*/,notification);
     }
 
+    public void notifySimple(String text){
+        MainActivity.requestPermissions();
+        Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.notify)
+                .setContentTitle("Vertretungs Plan informationen")
+                .setContentText(text)
+                .build();
+        NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
+        compat.notify(1/*TODO replace with actual id*/,notification);
+    }
+
     public String toText(List<Substitution> changes){
         StringBuilder builder = new StringBuilder();
-        builder.append("Es gibt neuigkeiten zu ").append(changes.size()).append(" Stunden\n");
+        builder.append("Es gibt neuigkeiten zu ").append(changes.size()).append(" Stunde" + (changes.size() == 1?"":"n") + "\n");
         for (Substitution change : changes) {
             builder.append(change.lesson).append(":").append(change.teacher);
             if(change.teacher_new != null && !change.teacher_new.isEmpty())

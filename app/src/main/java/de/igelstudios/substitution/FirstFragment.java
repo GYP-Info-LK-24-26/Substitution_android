@@ -1,5 +1,8 @@
 package de.igelstudios.substitution;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -36,6 +39,16 @@ public class FirstFragment extends Fragment {
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment)
         );
+
+        binding.reloadBtn.setOnClickListener(v -> {
+            MainActivity.requestPermissions();
+            ConnectivityManager cm = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+            boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+            if(isConnected && isWiFi) MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
+                });
     }
 
     @Override
