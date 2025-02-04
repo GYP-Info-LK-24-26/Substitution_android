@@ -203,7 +203,10 @@ public class RequestedCourses extends SQLiteOpenHelper {
         if(course.selected){
             remove(course.course);
             for (Course edit : COURSE_LIST) {
-                if(course.course == edit.course) edit.selected = false;
+                if(course.course == edit.course){
+                    edit.selected = false;
+                    courses.remove(edit);
+                }
             }
 
             for (List<List<Course>> sortedCours : sorted_courses) {
@@ -216,8 +219,13 @@ public class RequestedCourses extends SQLiteOpenHelper {
         } else{
             add(course.course);
 
+
+
             for (Course edit : COURSE_LIST) {
-                if(course.course == edit.course) edit.selected = true;
+                if(course.course == edit.course){
+                    edit.selected = true;
+                    courses.add(edit);
+                }
             }
 
             for (List<List<Course>> sortedCours : sorted_courses) {
