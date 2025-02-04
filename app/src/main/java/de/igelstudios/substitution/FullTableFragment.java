@@ -1,6 +1,10 @@
 package de.igelstudios.substitution;
 
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -122,10 +126,19 @@ public class FullTableFragment extends Fragment {
                 text = new TextView(this.getContext());
                 //boolean first = false;
                 StringBuilder buffer = new StringBuilder();
+                List<Pair<Integer,Integer>> colors = new ArrayList<>();
+                int charID = 0;
                 for (RequestedCourses.Course course : courses.get(i).get(j)) {
                     buffer/*.append(first?"\n":"")*/.append(course).append("\n");
+                    if(course.selected)colors.add(new Pair<>(charID,charID + course.toString().length()));
+                    charID += course.toString().length() + 1;
                     //first = true;
                 }
+                SpannableString span = new SpannableString(buffer.toString());
+                for (Pair<Integer, Integer> color : colors) {
+                    span.setSpan(new ForegroundColorSpan(0x00FF00),color.first,color.second,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+
                 text.setText(buffer.toString());
                 text.setTextColor(MainActivity.textColor.toArgb());
 

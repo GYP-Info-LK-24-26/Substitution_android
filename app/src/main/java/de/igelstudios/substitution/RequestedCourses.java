@@ -83,6 +83,13 @@ public class RequestedCourses extends SQLiteOpenHelper {
             this.day = day;
         }
 
+        public Course(int lesson,String teacher,int day,boolean selected){
+            this.lesson = lesson;
+            this.teacher = teacher;
+            this.day = day;
+            this.selected = selected;
+        }
+
         public Course(int lesson,String teacher,int day,int course){
             this.lesson = lesson;
             this.teacher = teacher;
@@ -94,6 +101,16 @@ public class RequestedCourses extends SQLiteOpenHelper {
         public String teacher;
         public int course = -1;
         public boolean selected = false;
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if(obj instanceof Course){
+                if(((Course) obj).lesson != this.lesson)return false;
+                if(((Course) obj).day != this.day)return false;
+                return  ((Course) obj).teacher.equals(this.teacher);
+            }
+            return false;
+        }
 
         @NonNull
         @Override
@@ -121,7 +138,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 " lesson.course = SELECTED_COURSES.course",null)){
             if(cr.moveToFirst()){
                 do{
-                    courses.add(new Course(cr.getInt(0),cr.getString(1),cr.getInt(2)));
+                    courses.add(new Course(cr.getInt(0),cr.getString(1),cr.getInt(2),true));
                 }while (cr.moveToNext());
             }
         }
@@ -133,7 +150,18 @@ public class RequestedCourses extends SQLiteOpenHelper {
             }
         }
 
-        for (RequestedCourses.Course course : courses) {
+        List<Course> all_curses = new ArrayList<>();
+        try(Cursor cr = db.rawQuery("SELECT Lesson.course,Lesson.teacher,Lesson.lessonTime,Lesson.day FROM Lesson",null)){
+            if(cr.moveToFirst()){
+                do{
+                    all_curses.add(new Course(cr.getInt(2),cr.getString(1),cr.getInt(3),cr.getInt(0)));
+                }while (cr.moveToNext());
+            }
+        }
+
+
+
+        for (RequestedCourses.Course course : all_curses) {
             sorted_courses.get(course.course - 1).get(course.day - 1).add(course);
         }
     }
