@@ -240,26 +240,6 @@ public class RequestedCourses extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM SELECTED_COURSES WHERE course = ?;",new String[]{String.valueOf(course_id)});
     }
 
-    /*public void add(int lesson,String teacher){
-        SQLiteDatabase db = this.getReadableDatabase();
-        try(Cursor cr = db.rawQuery("SELECT Lesson.course FROM Lesson WHERE Lesson.lessonTime = ? AND Lesson.teacher = ?",new String[]{String.valueOf(lesson),teacher})){
-            if(cr.moveToFirst()){
-                int id = cr.getInt(0);
-                db.execSQL("INSERT INTO SELECTED_COURSES (course) VALUES (?)",new String[]{String.valueOf(id)});
-            }
-        }
-    }
-
-    public void remove(int lesson,String teacher){
-        SQLiteDatabase db = this.getReadableDatabase();
-        try(Cursor cr = db.rawQuery("SELECT Lesson.course FROM Lesson WHERE Lesson.lessonTime = ? AND Lesson.teacher = ?",new String[]{String.valueOf(lesson),teacher})){
-            if(cr.moveToFirst()){
-                int id = cr.getInt(0);
-                db.execSQL("DELETE FROM SELECTED_COURSES WHERE course = ?",new String[]{String.valueOf(id)});
-            }
-        }
-    }*/
-
     public List<Course> getFullList(){
         SQLiteDatabase db = this.getReadableDatabase();
         try(Cursor cr = db.rawQuery("SELECT course,lessonTime,teacher,day FROM Lesson;",null)) {

@@ -46,8 +46,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 public class Fetcher extends SQLiteOpenHelper {
-    private static final String host = "leafrinari-clan.dynv6.net";
-    private static final int port = 4442;
     private final Context context;
     private static TrustManager[] trustAllCerts = new TrustManager[]{
             new X509TrustManager() {
@@ -203,22 +201,6 @@ public class Fetcher extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DELETE FROM Substitution");
     }
-
-    public static void writeNumber(int num,byte[] dest,int pos){
-        dest[pos] = (byte) num;
-        dest[pos + 1] = (byte) (num >> 8);
-        dest[pos + 2] = (byte) (num >> 16);
-        dest[pos + 3] = (byte) (num >> 24);
-    }
-
-    public static int readNumber(byte[] src,int pos){
-        int val = src[pos];
-        val += (src[pos + 1] << 8);
-        val += (src[pos + 2] << 16);
-        val += (src[pos + 3] << 24);
-        return val;
-    }
-
 
     private String makeHttpsRequest() {
         String result = "";

@@ -48,8 +48,6 @@ public class Notifier {
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notify)
                 .setContentTitle("Vertretungs Plan informationen")
-                //.setContentText("Es gibt neuigkeiten zu " + changes.size() + " stunden")
-                //.setLargeIcon(emailObject.getSenderAvatar())
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText( toText(changes)))
                 .build();

@@ -38,10 +38,8 @@ public class FullTableFragment extends Fragment {
             if (event.getAction() == MotionEvent.ACTION_DOWN && v instanceof TextView) {
                 TextView textView = (TextView) v;
 
-                // Get the touch Y position relative to the TextView
                 int y = (int) event.getY();
 
-                // Convert the touch position to a line number
                 int lineNumber = textView.getLayout().getLineForVertical(y);
 
                 if(MainActivity.getInstance().COURSES.sorted_courses.get(lesson).get(day).size() > lineNumber) {
@@ -49,7 +47,7 @@ public class FullTableFragment extends Fragment {
                     FullTableFragment.this.update();
                 }
                 v.performClick();
-                return true; // Consume the event
+                return true;
             }
             return false;
         }
@@ -117,18 +115,15 @@ public class FullTableFragment extends Fragment {
                 List<Pair<Integer,Integer>> colors = new ArrayList<>();
                 int charID = 0;
                 for (RequestedCourses.Course course : courses.get(i).get(j)) {
-                    buffer/*.append(first?"\n":"")*/.append(course).append("\n");
+                    buffer.append(course).append("\n");
                     if(course.selected)colors.add(new Pair<>(charID,charID + course.toString().length()));
                     charID += course.toString().length() + 1;
-                    //first = true;
                 }
                 SpannableString span = new SpannableString(buffer.toString());
                 for (Pair<Integer, Integer> color : colors) {
                     span.setSpan(new ForegroundColorSpan(0xFF00FF00),color.first,color.second,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
 
-                /*text.setText(buffer.toString());
-                text.setTextColor(MainActivity.textColor.toArgb());*/
                 text.setText(span);
 
                 text.setOnTouchListener(new Listener(j,i));

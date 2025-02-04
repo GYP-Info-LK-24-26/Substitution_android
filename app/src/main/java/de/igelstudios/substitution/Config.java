@@ -5,9 +5,6 @@ import android.content.Context;
 import androidx.preference.PreferenceManager;
 
 public class Config {
-    private static String name;
-    private static String last_name;
-    private static String birth_date;
     private static Config instance;
     private Context context;
 
