@@ -7,6 +7,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -149,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static void requestPermissions(){
         if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
-                Build.VERSION.SDK_INT >= 32) {
+                Build.VERSION.SDK_INT > 32) {
             ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
         }
         if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
@@ -159,6 +163,16 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.INTERNET},0);
         }
+
+        /*if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), Manifest.permission.SCHEDULE_EXACT_ALARM) != PackageManager.PERMISSION_GRANTED&&
+                Build.VERSION.SDK_INT > 30) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.SCHEDULE_EXACT_ALARM},0);
+        }
+
+        if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), Manifest.permission.USE_EXACT_ALARM) != PackageManager.PERMISSION_GRANTED &&
+                Build.VERSION.SDK_INT > 32) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.USE_EXACT_ALARM},0);
+        }*/
     }
 
     public static MainActivity getInstance() {
@@ -167,5 +181,32 @@ public class MainActivity extends AppCompatActivity {
 
     public ActivityMainBinding getBinding() {
         return binding;
+    }
+
+    public static boolean isConnectedToWiFi(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // For devices with Android 10 (API level 29) or above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            if (activeNetwork == null) {
+                return false;
+            }
+
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+            if (capabilities != null) {
+                // Check if the active network is connected via Wi-Fi
+                return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+            }
+        } else {
+            // For devices below Android 10 (API level 29), use the old method
+            // This is still valid for older devices but using the newer API is recommended for future-proofing.
+            android.net.NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null) {
+                return networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            }
+        }
+
+        return false;
     }
 }

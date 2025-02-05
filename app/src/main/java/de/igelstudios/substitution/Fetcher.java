@@ -148,12 +148,12 @@ public class Fetcher extends SQLiteOpenHelper {
 
     private List<Substitution> fetchRemote() {
         MainActivity.requestPermissions();
-        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        /*ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
-        if(!isConnected || !isWiFi)return new ArrayList<>();
+        if(!isConnected || !isWiFi)return new ArrayList<>();*/
 
         CompletableFuture<String> future = new CompletableFuture<>();
 

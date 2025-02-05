@@ -33,7 +33,7 @@ public class MidnightClearer extends Worker {
 
         long initialDelay = (23 - hoursPastDay) * 3600 + (59 - minutesPastHour) * 60L - secondsPastMinute;
 
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(Scheduler.class, 1, TimeUnit.HOURS)
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(MidnightClearer.class, 1, TimeUnit.DAYS)
                 .setInitialDelay(initialDelay, TimeUnit.SECONDS)
                 .build();
 

@@ -42,12 +42,12 @@ public class FirstFragment extends Fragment {
 
         binding.reloadBtn.setOnClickListener(v -> {
             MainActivity.requestPermissions();
-            ConnectivityManager cm = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            /*ConnectivityManager cm = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-            boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
-            if(isConnected && isWiFi) MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
+            boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;*/
+            if(MainActivity.isConnectedToWiFi(this.getContext())) MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
                 });
     }
 
