@@ -40,7 +40,7 @@
     <fragment
         android:id="@+id/settingsFragment"
         android:name="de.igelstudios.substitution.SettingsFragment"
-        android:label="SettingsFragment" >
+        android:label="@string/settings_fragment_label" >
         <action
             android:id="@+id/action_settingsFragment_to_fullTableFragment"
             app:destination="@id/fullTableFragment" />
@@ -48,7 +48,7 @@
     <fragment
         android:id="@+id/fullTableFragment"
         android:name="de.igelstudios.substitution.FullTableFragment"
-        android:label="FullTableFragment" >
+        android:label="@string/full_fragment_label" >
         <action
             android:id="@+id/action_fullTableFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />

@@ -19,7 +19,7 @@ public class Table {
 
         TableRow header = new TableRow(context);
         TextView tv = new TextView(context);
-        tv.setText(" Std.  ");
+        tv.setText("     Std.  ");
         tv.setTextColor(MainActivity.textColor.toArgb());
         header.addView(tv);
         tv = new TextView(context);
@@ -48,7 +48,7 @@ public class Table {
             TableRow row = new TableRow(context);
 
             TextView text = new TextView(context);
-            text.setText(" " + change.lesson + "  ");
+            text.setText("     " + change.lesson + "  ");
             text.setTextColor(MainActivity.textColor.toArgb());
             row.addView(text);
             text = new TextView(context);
