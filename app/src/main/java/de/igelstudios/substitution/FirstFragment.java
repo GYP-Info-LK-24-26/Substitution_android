@@ -48,7 +48,8 @@ public class FirstFragment extends Fragment {
             boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
             boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
             if(isConnected && isWiFi) */
-            MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
+            MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges)
+            ;
         });
     }
 

@@ -95,9 +95,9 @@ public class MainActivity extends AppCompatActivity {
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*if(settings)navController.navigate(R.id.action_settingsFragment_to_fullTableFragment);
+                if(settings)navController.navigate(R.id.action_settingsFragment_to_fullTableFragment);
                 else if(second) navController.navigate(R.id.action_SecondFragment_to_fullTableFragment);
-                else*/ navController.navigate(R.id.action_FirstFragment_to_fullTableFragment);
+                else navController.navigate(R.id.action_FirstFragment_to_fullTableFragment);
             }
         });
 

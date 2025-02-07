@@ -44,7 +44,23 @@ public class Table {
         header.addView(tv);
         table.addView(header);
 
+        String date = "";
         for (Substitution change : substitutions) {
+            if(!change.date.equals(date)){
+                date = change.date;
+                TableRow row = new TableRow(context);
+                TextView text;
+                for (int i = 0; i < 5; i++) {
+                    text = new TextView(context);
+                    text.setText("");
+                    row.addView(text);
+                }
+                text = new TextView(context);
+                text.setText(date);
+                text.setTextColor(MainActivity.textColor.toArgb());
+                row.addView(text);
+                table.addView(row);
+            }
             TableRow row = new TableRow(context);
 
             TextView text = new TextView(context);

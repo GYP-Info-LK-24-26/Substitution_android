@@ -17,20 +17,16 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import de.igelstudios.substitution.databinding.FragmentFirstBinding;
 import de.igelstudios.substitution.databinding.FragmentTableBinding;
 
 public class FullTableFragment extends Fragment {
     public class Listener implements View.OnTouchListener{
-        private int day,lesson;
+        private int line = -1;
 
-        public Listener(int day,int lesson){
-            this.day = day;
-            this.lesson = lesson;
+        public Listener(int line){
+            this.line = line;
         }
 
         @Override
@@ -38,12 +34,8 @@ public class FullTableFragment extends Fragment {
             if (event.getAction() == MotionEvent.ACTION_DOWN && v instanceof TextView) {
                 TextView textView = (TextView) v;
 
-                int y = (int) event.getY();
-
-                int lineNumber = textView.getLayout().getLineForVertical(y);
-
-                if(MainActivity.getInstance().COURSES.sorted_courses.get(lesson).get(day).size() > lineNumber) {
-                    MainActivity.getInstance().COURSES.toggle(MainActivity.getInstance().COURSES.sorted_courses.get(lesson).get(day).get(lineNumber));
+                if(MainActivity.getInstance().COURSES.allCourses.size() > line) {
+                    MainActivity.getInstance().COURSES.toggle(MainActivity.getInstance().COURSES.allCourses.get(line));
                     FullTableFragment.this.update();
                 }
                 v.performClick();
@@ -68,39 +60,29 @@ public class FullTableFragment extends Fragment {
 
 
     public void update(){
-        List<List<List<RequestedCourses.Course>>> courses = MainActivity.getInstance().COURSES.sorted_courses;
+        List<RequestedCourses.Course> courses = MainActivity.getInstance().COURSES.allCourses;
 
         TableLayout table = MainActivity.getInstance().findViewById(R.id.sub_table);
         table.removeAllViews();
-        TableRow header = new TableRow(this.getContext());
-        TextView tv = new TextView(this.getContext());
-        tv.setText("");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
 
-        tv = new TextView(this.getContext());
-        tv.setText("Montag  ");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
-        tv = new TextView(this.getContext());
-        tv.setText("Dienstag  ");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
-        tv = new TextView(this.getContext());
-        tv.setText("Mitwoch  ");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
-        tv = new TextView(this.getContext());
-        tv.setText("Donnerstag  ");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
-        tv = new TextView(this.getContext());
-        tv.setText("Freitag  ");
-        tv.setTextColor(MainActivity.textColor.toArgb());
-        header.addView(tv);
-        table.addView(header);
 
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0;i < courses.size();i++) {
+            RequestedCourses.Course cours = courses.get(i);
+            TableRow row = new TableRow(this.getContext());
+            TextView view = new TextView(this.getContext());
+            view.setText(cours.teacher + "  ");
+            if(cours.selected)view.setTextColor(0xFF00FF00);
+            row.addView(view);
+            view.setOnTouchListener(new Listener(i));
+            view = new TextView(this.getContext());
+            view.setText(cours.subject);
+            if(cours.selected)view.setTextColor(0xFF00FF00);
+            view.setOnTouchListener(new Listener(i));
+            row.addView(view);
+            table.addView(row);
+        }
+
+        /*for (int i = 0; i < 11; i++) {
             TableRow row = new TableRow(this.getContext());
 
             TextView text = new TextView(this.getContext());
@@ -114,7 +96,7 @@ public class FullTableFragment extends Fragment {
                 StringBuilder buffer = new StringBuilder();
                 List<Pair<Integer,Integer>> colors = new ArrayList<>();
                 int charID = 0;
-                for (RequestedCourses.Course course : courses.get(i).get(j)) {
+                for (RequestedCourses.LessonCourse course : courses.get(i).get(j)) {
                     buffer.append(course).append("\n");
                     if(course.selected)colors.add(new Pair<>(charID,charID + course.toString().length()));
                     charID += course.toString().length() + 1;
@@ -131,7 +113,7 @@ public class FullTableFragment extends Fragment {
                 row.addView(text);
             }
             table.addView(row);
-        }
+        }*/
     }
 
     @Override

@@ -31,8 +31,9 @@ public class Scheduler extends Worker{
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if(!isConnected)return Result.success();
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
-        if(isConnected && isWiFi) MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
+        if(isWiFi)MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
         return Result.success();
     }
 

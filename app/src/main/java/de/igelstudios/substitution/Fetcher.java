@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -70,39 +71,46 @@ public class Fetcher extends SQLiteOpenHelper {
         this.context = context;
     }
 
-    public List<Substitution> fetch(){
-        List<Substitution> change = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        try(Cursor cr = db.rawQuery("SELECT * FROM Substitution",null)){
-            List<Substitution> remote = this.fetchRemote();
-            if(remote == null)return new ArrayList<>();
-            List<Substitution> known = new ArrayList<>();
+    public void fetch(Consumer<List<Substitution>> consumer){
+        this.fetchRemote(new Consumer<List<Substitution>>() {
+            @Override
+            public void accept(List<Substitution> remote) {
+                List<Substitution> change = new ArrayList<>();
+                SQLiteDatabase db = Fetcher.this.getReadableDatabase();
+                try(Cursor cr = db.rawQuery("SELECT * FROM Substitution",null)) {
 
-            if(cr.moveToFirst()){
-                do{
-                    known.add(new Substitution(cr.getInt(0),cr.getString(1),cr.getString(2),cr.getString(3)
-                            ,cr.getString(4),cr.getString(5),cr.getString(6)));
-                }while (cr.moveToNext());
-            }
+                    if (remote == null){
+                        consumer.accept(null);
+                        return;
+                    }
+                    List<Substitution> known = new ArrayList<>();
 
-            for (Substitution substitution : remote) {
-                if(!contains(known,substitution))change.add(substitution);
-            }
+                    if (cr.moveToFirst()) {
+                        do {
+                            known.add(new Substitution(cr.getInt(0), cr.getString(1), cr.getString(2), cr.getString(3)
+                                    , cr.getString(4), cr.getString(5), cr.getString(6)));
+                        } while (cr.moveToNext());
+                    }
 
-            for (Substitution substitution : change) {
-                add(substitution,db);
-            }
+                    for (Substitution substitution : remote) {
+                        if (!contains(known, substitution)) change.add(substitution);
+                    }
 
-            for (Substitution substitution : known) {
-                if(!contains(remote,substitution)) {
-                    remove(substitution, db);
-                    change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet stat", "", substitution.date));
+                    for (Substitution substitution : change) {
+                        add(substitution, db);
+                    }
+
+                    for (Substitution substitution : known) {
+                        if (!contains(remote, substitution)) {
+                            remove(substitution, db);
+                            change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet stat", "", substitution.date));
+                        }
+                    }
+
+                    consumer.accept(change);
                 }
             }
-
-            return change;
-        }
-
+        });
     }
 
     public List<Substitution> fetchLocal(){
@@ -146,50 +154,52 @@ public class Fetcher extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM Substitution WHERE Lesson = ? AND Teacher = ?",new String[]{String.valueOf(substitution.lesson),substitution.teacher});
     }
 
-    private List<Substitution> fetchRemote() {
+    private void fetchRemote(Consumer<List<Substitution>> consumer) {
         MainActivity.requestPermissions();
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        if(!isConnected){
+            consumer.accept(null);
+            return;
+        }
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
-        if(!isConnected || !isWiFi)return new ArrayList<>();
-
-        CompletableFuture<String> future = new CompletableFuture<>();
+        if(!isWiFi){
+            consumer.accept(new ArrayList<>());
+            return;
+        }
 
         new Thread(() -> {
             try {
 
-                String result = makeHttpsRequest();
-                future.complete(result);
+                String data = makeHttpsRequest();
+                List<Substitution> subs = new ArrayList<>();
+                if(data.charAt(0) == 'E'){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                    consumer.accept(null);
+                    return;
+                }else if(data.equals("69420")){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                    consumer.accept(null);
+                    return;
+                }else{
+                    JSONArray object = new JSONArray(data);
+                    for (int i = 0; i < object.length(); i++) {
+                        JSONObject sub = ((JSONObject) object.get(i));
+                        subs.add(new Substitution(sub.getInt("lesson"),sub.getString("teacher"),sub.getString("course_new"),sub.getString("teacher_new"),
+                                sub.getString("info"),sub.getString("room"),sub.getString("date")));
+                    }
+                }
+
+                consumer.accept(subs);
+                //future.complete(result);
 
             } catch (Exception e) {
-                future.completeExceptionally(e);
+                throw new RuntimeException(e);
+                //future.completeExceptionally(e);
             }
         }).start();
-
-        try {
-            List<Substitution> subs = new ArrayList<>();
-            String data = future.get();
-            if(data.charAt(0) == 'E'){
-                MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
-                return null;
-            }else if(data.equals("69420")){
-                MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
-                return null;
-            }else{
-                JSONArray object = new JSONArray(data);
-                for (int i = 0; i < object.length(); i++) {
-                    JSONObject sub = ((JSONObject) object.get(i));
-                    subs.add(new Substitution(sub.getInt("lesson"),sub.getString("teacher"),sub.getString("course_new"),sub.getString("teacher_new"),
-                            sub.getString("info"),sub.getString("room"),sub.getString("date")));
-                }
-            }
-
-            return subs;
-        } catch (ExecutionException | InterruptedException | JSONException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -205,7 +215,7 @@ public class Fetcher extends SQLiteOpenHelper {
     private String makeHttpsRequest() {
         String result = "";
         try {
-            URL url = new URL("https://leafrinari-clan.dynv6.net:4442");
+            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/substitution/");
 
             // Open connection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

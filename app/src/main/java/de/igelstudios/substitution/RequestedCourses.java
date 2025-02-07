@@ -4,14 +4,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.Comparators;
+
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -22,115 +21,118 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.Function;
 
 public class RequestedCourses extends SQLiteOpenHelper {
-    private static final List<Course> COURSE_LIST = List.of(new Course(1,"Stz",1,46),new Course(1,"Snd",1,2),
-            new Course(1,"Kon",1,15),new Course(1,"Kir",2,39),new Course(1,"Phi",2,49),
-            new Course(1,"HrA",2,35),new Course(1,"Ruf",2,38),new Course(1,"For",3,57),
-            new Course(1,"Dil",3,21),new Course(1,"Kne",3,62),new Course(1,"Ken",4,43),
-            new Course(1,"Rau",4,59),new Course(1,"Tho",4,25),new Course(1,"Nes",4,37),
-            new Course(1,"Hau",4,44),new Course(1,"Phi",5,49),new Course(1,"Ruf",5,38),
-            new Course(1,"HrA",5,35),new Course(1,"Kir",5,39),new Course(2,"Kon",1,15),
-            new Course(2,"Stz",1,46),new Course(2,"Snd",1,2),new Course(2,"Ruf",2,38),
-            new Course(2,"Kir",2,39),new Course(2,"HrA",2,35),new Course(2,"Phi",2,49),
-            new Course(2,"Kop",3,61),new Course(2,"Eib",3,14),new Course(2,"Omr",3,22),
-            new Course(2,"Sil",3,13),new Course(2,"Cia",3,27),new Course(2,"Nes",4,37),
-            new Course(2,"Ken",4,43),new Course(2,"Rau",4,59),new Course(2,"Tho",4,25),
-            new Course(2,"Hau",4,44),new Course(2,"Kop",5,61),new Course(2,"Eib",5,14),
-            new Course(2,"Sil",5,13),new Course(2,"Omr",5,22),new Course(2,"Cia",5,27),
-            new Course(3,"Omr",1,22),new Course(3,"Sil",1,13),new Course(3,"Cia",1,27),
-            new Course(3,"Eib",1,14),new Course(3,"Kop",1,61),new Course(3,"Ken",2,43),
-            new Course(3,"Rau",2,59),new Course(3,"Nes",2,37),new Course(3,"Tho",2,25),
-            new Course(3,"Hau",2,44),new Course(3,"Wdl",3,40),new Course(3,"Wag",3,63),
-            new Course(3,"Lan",3,12),new Course(3,"Pal",3,18),new Course(3,"For",4,57),
-            new Course(3,"Ruf",4,38),new Course(3,"Kne",4,62),new Course(3,"Wag",4,63),
-            new Course(3,"Knz",4,19),new Course(3,"HoM",4,51),new Course(3,"Dil",4,21),
-            new Course(3,"Fag",5,34),new Course(3,"Rem",5,53),new Course(3,"Hoh",5,50),
-            new Course(3,"Zeh",5,24),new Course(3,"Hub",5,41),new Course(4,"Eib",1,14),
-            new Course(4,"Sil",1,13),new Course(4,"Omr",1,22),new Course(4,"Kop",1,61),
-            new Course(4,"Cia",1,27),new Course(4,"Rau",2,59),new Course(4,"Nes",2,37),
-            new Course(4,"Ken",2,43),new Course(4,"Tho",2,25),new Course(4,"Hau",2,44),
-            new Course(4,"Pal",3,18),new Course(4,"Wdl",3,40),new Course(4,"Wag",3,63),
-            new Course(4,"Lan",3,12),new Course(4,"Knz",4,19),new Course(4,"For",4,57),
-            new Course(4,"Kne",4,62),new Course(4,"Dil",4,21),new Course(4,"HoM",4,51),
-            new Course(4,"Ruf",4,38),new Course(4,"Wag",4,63),new Course(4,"Fag",5,34),
-            new Course(4,"Zeh",5,24),new Course(4,"Hoh",5,50),new Course(4,"Hub",5,41),
-            new Course(4,"Rem",5,53),new Course(5,"Hei",1,7),new Course(5,"Hop",1,16),
-            new Course(5,"Kla",1,8),new Course(5,"Sku",1,56),new Course(5,"Sfr",1,65),
-            new Course(5,"Hau",2,31),new Course(5,"Hof",2,30),new Course(5,"Con",2,47),
-            new Course(5,"DeA",2,4),new Course(5,"Lbl",2,66),new Course(5,"HoM",3,51),
-            new Course(5,"Son",3,32),new Course(5,"Sus",3,1),new Course(5,"Sho",3,9),
-            new Course(5,"DeS",4,54),new Course(5,"Isr",4,5),new Course(5,"Wag",4,42),
-            new Course(5,"Stb",4,33),new Course(5,"For",5,57),new Course(5,"Kne",5,62),
-            new Course(5,"Dil",5,21),new Course(6,"Sfr",1,65),new Course(6,"Hei",1,7),
-            new Course(6,"Hop",1,16),new Course(6,"Sku",1,56),new Course(6,"Kla",1,8),
-            new Course(6,"Con",2,47),new Course(6,"Hof",2,30),new Course(6,"Hau",2,31),
-            new Course(6,"Lbl",2,66),new Course(6,"DeA",2,4),new Course(6,"Sho",3,9),
-            new Course(6,"Sus",3,1),new Course(6,"Son",3,32),new Course(6,"HoM",3,51),
-            new Course(6,"Wag",4,42),new Course(6,"Stb",4,33),new Course(6,"DeS",4,54),
-            new Course(6,"Isr",4,5),new Course(6,"Dil",5,21),new Course(6,"Kne",5,62),
-            new Course(6,"For",5,57),new Course(7,"Son",5,55),new Course(7,"Fis",5,28),
-            new Course(8,"HrA",1,45),new Course(8,"Sus",1,17),new Course(8,"Stz",2,48),
-            new Course(8,"Stb",2,29),new Course(8,"Wag",2,3),new Course(8,"Omr",2,11),
-            new Course(8,"Ker",2,64),new Course(8,"Kam",2,58),new Course(8,"Sus",2,52),
-            new Course(8,"Zeh",3,24),new Course(8,"Fag",3,34),new Course(8,"Hoh",3,50),
-            new Course(8,"Rem",3,53),new Course(8,"Hub",3,41),new Course(8,"Ama",4,60),
-            new Course(8,"Ber",4,6),new Course(8,"Son",5,55),new Course(8,"Fis",5,28),
-            new Course(9,"Sus",1,17),new Course(9,"HrA",1,45),new Course(9,"Stz",2,48),
-            new Course(9,"Stb",2,29),new Course(9,"Wag",2,3),new Course(9,"Ker",2,64),
-            new Course(9,"Sus",2,52),new Course(9,"Omr",2,11),new Course(9,"Kam",2,58),
-            new Course(9,"Stz",3,46),new Course(9,"Kon",3,15),new Course(9,"Snd",3,2),
-            new Course(9,"Ama",4,60),new Course(9,"Ber",4,6),new Course(10,"Shc",2,20),
-            new Course(10,"Web",3,23),new Course(10,"Kam",3,26),new Course(10,"Knz",3,19),
-            new Course(10,"Dil",3,36),new Course(10,"Hof",3,10),new Course(11,"Shc",2,20),
-            new Course(11,"Web",3,23),new Course(11,"Knz",3,19),new Course(11,"Hof",3,10),
-            new Course(11,"Dil",3,36),new Course(11,"Kam",3,26));
-
+    @FunctionalInterface
+    public static interface Empty{
+        void execute();
+    }
     public void fetchAndAdd() {
-        CompletableFuture<String> future = new CompletableFuture<>();
-
         new Thread(() -> {
             try {
 
-                String result = makeHttpsRequest();
-                future.complete(result);
+                String data = makeHttpsRequest("courses");
+                if(data.charAt(0) == 'E'){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                    return;
+                }else if(data.equals("69420")){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                    return;
+                }else{
+                    JSONArray object = new JSONArray(data);
+                    List<Integer> courseIDS = new ArrayList<>();
+                    for (int i = 0; i < object.length(); i++) {
+                        int sub = ((Integer) object.get(i));
+                        courseIDS.add(sub);
+                    }
 
-            } catch (Exception e) {
-                future.completeExceptionally(e);
-            }
-        }).start();
+                    writeCourses(courseIDS);
 
-        try {
-            String data = future.get();
-            if(data.charAt(0) == 'E'){
-                MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
-                return;
-            }else if(data.equals("69420")){
-                MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
-                return;
-            }else{
-                JSONArray object = new JSONArray(data);
-                List<Integer> courseIDS = new ArrayList<>();
-                for (int i = 0; i < object.length(); i++) {
-                    int sub = ((Integer) object.get(i));
-                    courseIDS.add(sub);
+                    reload();
                 }
 
-                writeCourses(courseIDS);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        } catch (ExecutionException | InterruptedException | JSONException e) {
-            throw new RuntimeException(e);
+        }).start();
+    }
+
+    public void loadData(Empty empty){
+        new Thread(() -> {
+            try {
+
+                String data = makeHttpsRequest("table");
+                if(data.charAt(0) == 'E'){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                    return;
+                }else if(data.equals("69420")){
+                    MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                    return;
+                }else{
+                    JSONArray object = new JSONArray(data);
+                    List<Course> courseIDS = new ArrayList<>();
+                    for (int i = 0; i < object.length(); i++) {
+                        JSONObject obj = ((JSONObject) object.get(i));
+                        courseIDS.add(new Course(obj.getInt("id"),obj.getString("Teacher"),obj.getString("Subject")));
+                    }
+
+                    reloadCourses(courseIDS);
+
+                    data = makeHttpsRequest("lessons");
+                    if(data.charAt(0) == 'E'){
+                        MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                        return;
+                    }else if(data.equals("69420")){
+                        MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                        return;
+                    }else{
+                        object = new JSONArray(data);
+                        List<LessonCourse> lessons = new ArrayList<>();
+                        for (int i = 0; i < object.length(); i++) {
+                            JSONObject obj = ((JSONObject) object.get(i));
+                            lessons.add(new LessonCourse(obj.getInt("lesson"),obj.getString("teacher"),obj.getInt("day"),obj.getInt("course")));
+                        }
+
+                        reloadLessons(lessons);
+                        empty.execute();
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
+
+    private void reloadCourses(List<Course> courses){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM Course;");
+
+        for (Course course : courses) {
+            db.execSQL("INSERT INTO Course (id,teacher,subject) VALUES (?,?,?)",new String[]{String.valueOf(course.id),course.teacher,course.subject});
         }
     }
 
-    private String makeHttpsRequest() {
+    private void reloadLessons(List<LessonCourse> lessons){
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DELETE FROM Lesson;");
+
+        for (LessonCourse lesson : lessons) {
+            db.execSQL("INSERT INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?)",
+                    new String[]{String.valueOf(lesson.course),String.valueOf(lesson.lesson),lesson.teacher,String.valueOf(lesson.day)});
+        }
+    }
+
+    private String makeHttpsRequest(String path) {
         String result = "";
         try {
-            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/courses");
+            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/" + path + "/");
 
             // Open connection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -169,30 +171,47 @@ public class RequestedCourses extends SQLiteOpenHelper {
     }
 
     private void writeCourses(List<Integer> courseIDS) {
-        for (List<List<Course>> sortedCours : sorted_courses) {
-            for (List<Course> sortedCour : sortedCours) {
-                for (Course course : sortedCour) {
-                    if(courseIDS.contains(course.course))toggle(course);
-                }
-            }
+        SQLiteDatabase db = this.getReadableDatabase();
+        for (Integer courseID : courseIDS) {
+            db.execSQL("INSERT OR IGNORE INTO SELECTED_COURSES (course) VALUES (?)",new String[]{String.valueOf(courseID)});
         }
     }
 
     public static class Course{
-        public Course(int lesson,String teacher,int day){
+        public String teacher;
+        public String subject;
+        public int id;
+        public boolean selected = false;
+
+        public Course(int id, String teacher, String subject) {
+            this.id = id;
+            this.teacher = teacher;
+            this.subject = subject;
+        }
+    }
+
+    public static class LessonCourse {
+        public LessonCourse(int lesson, String teacher, int day){
             this.lesson = lesson;
             this.teacher = teacher;
             this.day = day;
         }
 
-        public Course(int lesson,String teacher,int day,boolean selected){
+        public LessonCourse(int lesson,String teacher,int day,boolean selected){
             this.lesson = lesson;
             this.teacher = teacher;
             this.day = day;
             this.selected = selected;
         }
 
-        public Course(int lesson,String teacher,int day,int course,boolean selected){
+        public LessonCourse(int lesson,String teacher,int day,int course){
+            this.lesson = lesson;
+            this.teacher = teacher;
+            this.day = day;
+            this.course = course;
+        }
+
+        public LessonCourse(int lesson,String teacher,int day,int course,boolean selected){
             this.lesson = lesson;
             this.teacher = teacher;
             this.day = day;
@@ -200,12 +219,6 @@ public class RequestedCourses extends SQLiteOpenHelper {
             this.selected = selected;
         }
 
-        public Course(int lesson,String teacher,int day,int course){
-            this.lesson = lesson;
-            this.teacher = teacher;
-            this.day = day;
-            this.course = course;
-        }
         public int lesson;
         public int day;
         public String teacher;
@@ -214,10 +227,10 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
         @Override
         public boolean equals(@Nullable Object obj) {
-            if(obj instanceof Course){
-                if(((Course) obj).lesson != this.lesson)return false;
-                if(((Course) obj).day != this.day)return false;
-                return  ((Course) obj).teacher.equals(this.teacher);
+            if(obj instanceof LessonCourse){
+                if(((LessonCourse) obj).lesson != this.lesson)return false;
+                if(((LessonCourse) obj).day != this.day)return false;
+                return  ((LessonCourse) obj).teacher.equals(this.teacher);
             }
             return false;
         }
@@ -228,61 +241,106 @@ public class RequestedCourses extends SQLiteOpenHelper {
             return /*course + "  " +*/ teacher;
         }
     }
-    private static final int DB_VERSION = 1;
-    private List<Course> courses;
+    private static final int DB_VERSION = 2;
+    private List<LessonCourse> selectedCourses;
+    private List<LessonCourse> lessons;
+    public List<Course> allCourses;
     private boolean loaded = false;
-
-    List<List<List<RequestedCourses.Course>>> sorted_courses = new ArrayList<>();
 
     public RequestedCourses(@Nullable Context context, @Nullable String name) {
         super(context, name, null, DB_VERSION);
 
-        courses = new ArrayList<>();
+        selectedCourses = new ArrayList<>();
+        allCourses = new ArrayList<>();
+        lessons = new ArrayList<>();
+    }
+
+    public void reload(){
+        loaded = false;
+        selectedCourses = new ArrayList<>();
+        allCourses = new ArrayList<>();
+        lessons = new ArrayList<>();
+        load();
     }
 
     public void load(){
+        load(false);
+    }
+
+    public void load(boolean await){
         if(loaded)return;
         loaded = true;
-        SQLiteDatabase db = this.getReadableDatabase();
-        try(Cursor cr = db.rawQuery("SELECT Lesson.lessonTime,Lesson.teacher,Lesson.day,Lesson.course FROM Lesson INNER JOIN SELECTED_COURSES ON" +
-                " lesson.course = SELECTED_COURSES.course",null)){
-            if(cr.moveToFirst()){
-                do{
-                    courses.add(new Course(cr.getInt(0),cr.getString(1),cr.getInt(2),cr.getInt(3),true));
-                }while (cr.moveToNext());
-            }
-        }
-
-        for (int i = 0; i < 11; i++) {
-            sorted_courses.add(new ArrayList<>());
-            for (int j = 0; j < 5; j++) {
-                sorted_courses.get(i).add(new ArrayList<>());
-            }
-        }
-
-        List<Course> all_curses = new ArrayList<>();
-        try(Cursor cr = db.rawQuery("SELECT Lesson.course,Lesson.teacher,Lesson.lessonTime,Lesson.day FROM Lesson",null)){
-            if(cr.moveToFirst()){
-                do{
-                    all_curses.add(new Course(cr.getInt(2),cr.getString(1),cr.getInt(3),cr.getInt(0)));
-                }while (cr.moveToNext());
-            }
-        }
-
-        for (RequestedCourses.Course course : all_curses) {
-            for (Course cours : courses) {
-                if(cours.course == course.course){
-                    course.selected = true;
-                    break;
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        Empty empty = () -> {
+            SQLiteDatabase db = this.getReadableDatabase();
+            try(Cursor cr = db.rawQuery("SELECT Lesson.lessonTime,Lesson.teacher,Lesson.day,Lesson.course FROM Lesson INNER JOIN SELECTED_COURSES ON" +
+                    " lesson.course = SELECTED_COURSES.course",null)){
+                if(cr.moveToFirst()){
+                    do{
+                        selectedCourses.add(new LessonCourse(cr.getInt(0),cr.getString(1),cr.getInt(2),cr.getInt(3)));
+                    }while (cr.moveToNext());
                 }
             }
-            sorted_courses.get(course.lesson - 1).get(course.day - 1).add(course);
 
+            try(Cursor cr = db.rawQuery("SELECT Lesson.course,Lesson.teacher,Lesson.lessonTime,Lesson.day FROM Lesson",null)){
+                if(cr.moveToFirst()){
+                    do{
+                        lessons.add(new LessonCourse(cr.getInt(2),cr.getString(1),cr.getInt(3),cr.getInt(0)));
+                    }while (cr.moveToNext());
+                }
+            }
+
+            for (LessonCourse course : lessons) {
+                for (LessonCourse cours : selectedCourses) {
+                    if(cours.course == course.course){
+                        course.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            try(Cursor cr = db.rawQuery("SELECT id,teacher,subject FROM Course",null)) {
+                if(cr.moveToFirst()){
+                    do{
+                        allCourses.add(new Course(cr.getInt(0),cr.getString(1),cr.getString(2)));
+                    }while (cr.moveToNext());
+                }
+            }
+
+            allCourses.sort((s1,s2) -> s1.teacher.compareToIgnoreCase(s2.teacher));
+
+            for (Course course : allCourses) {
+                for (LessonCourse selected : selectedCourses) {
+                    if(course.id == selected.course){
+                        course.selected = true;
+                        break;
+                    }
+                }
+            }
+            future.complete(true);
+        };
+        try {
+            if(hasData())empty.execute();
+            else loadData(empty);
+            if(await)future.get();
+        }catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    public boolean hasData(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        try(Cursor cr = db.rawQuery("SELECT COUNT(*) FROM Course",null)) {
+            if(cr.moveToFirst()){
+                return cr.getInt(0) > 0;
+            }
+        }
+
+        return false;
+    }
+
     public List<Substitution> strip(List<Substitution> changes){
-        load();
+        load(true);
         List<Substitution> member = new ArrayList<>();
         Calendar now = Calendar.getInstance();
 
@@ -290,7 +348,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
             //now.setTime(new Date(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2))));
             now.set(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2)));
             int dayID = now.get(Calendar.DAY_OF_WEEK) - 1;
-            for (Course course : courses) {
+            for (LessonCourse course : selectedCourses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);
                     break;
@@ -303,40 +361,27 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
     public void toggle(Course course){
         if(course.selected){
-            remove(course.course);
-            for (Course edit : COURSE_LIST) {
-                if(course.course == edit.course){
+            remove(course.id);
+            for (LessonCourse edit : lessons) {
+                if(course.id == edit.course){
                     edit.selected = false;
-                    courses.remove(edit);
+                    selectedCourses.remove(edit);
                 }
             }
 
-            for (List<List<Course>> sortedCours : sorted_courses) {
-                for (List<Course> sortedCour : sortedCours) {
-                    for (Course edit : sortedCour) {
-                        if(course.course == edit.course)edit.selected = false;
-                    }
-                }
-            }
+            course.selected = false;
+
         } else{
-            add(course.course);
+            add(course.id);
 
-
-
-            for (Course edit : COURSE_LIST) {
-                if(course.course == edit.course){
+            for (LessonCourse edit : lessons) {
+                if(course.id == edit.course){
                     edit.selected = true;
-                    courses.add(edit);
+                    selectedCourses.add(edit);
                 }
             }
 
-            for (List<List<Course>> sortedCours : sorted_courses) {
-                for (List<Course> sortedCour : sortedCours) {
-                    for (Course edit : sortedCour) {
-                        if(course.course == edit.course) edit.selected = true;
-                    }
-                }
-            }
+            course.selected = true;
         }
     }
 
@@ -350,14 +395,14 @@ public class RequestedCourses extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM SELECTED_COURSES WHERE course = ?;",new String[]{String.valueOf(course_id)});
     }
 
-    public List<Course> getFullList(){
+    public List<LessonCourse> getFullList(){
         SQLiteDatabase db = this.getReadableDatabase();
         try(Cursor cr = db.rawQuery("SELECT course,lessonTime,teacher,day FROM Lesson;",null)) {
-            List<Course> list = new ArrayList<>();
+            List<LessonCourse> list = new ArrayList<>();
             if(cr.moveToFirst()){
 
                 do{
-                    list.add(new Course(cr.getInt(1),cr.getString(2),cr.getInt(3),cr.getInt(0)));
+                    list.add(new LessonCourse(cr.getInt(1),cr.getString(2),cr.getInt(3),cr.getInt(0)));
                 }while (cr.moveToNext());
             }
 
@@ -369,16 +414,11 @@ public class RequestedCourses extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS SELECTED_COURSES (course INTEGER,PRIMARY KEY(course));");
         db.execSQL("CREATE TABLE IF NOT EXISTS Lesson (course INTEGER,lessonTime INTEGER,teacher String,day INTEGER, PRIMARY KEY(lessonTime,teacher,day));");
-
-        for (Course course : COURSE_LIST) {
-            db.execSQL("INSERT INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?);",
-                    new String[]{String.valueOf(course.course),String.valueOf(course.lesson),course.teacher,String.valueOf(course.day)});
-
-        }
+        db.execSQL("CREATE TABLE IF NOT EXISTS Course (id INTEGER,teacher TEXT,subject TEXT, PRIMARY KEY(id))");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if(oldVersion == 1 && newVersion == 2) db.execSQL("CREATE TABLE IF NOT EXISTS Course (id INTEGER,teacher TEXT,subject TEXT, PRIMARY KEY(id))");
     }
 }

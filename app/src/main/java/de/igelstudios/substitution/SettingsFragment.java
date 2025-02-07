@@ -12,18 +12,19 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         setPreferencesFromResource(R.xml.preferences, rootKey);
 
         Preference button = findPreference("load_table");
-        button.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        button.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
             @Override
-            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+            public boolean onPreferenceClick(@NonNull Preference preference) {
                 MainActivity.getInstance().COURSES.fetchAndAdd();
                 return true;
             }
         });
 
         Preference updateBTN = findPreference("update");
-        updateBTN.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        updateBTN.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
-            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+            public boolean onPreferenceClick(@NonNull Preference preference) {
                 MainActivity.getInstance().UPDATER.updateForce();
                 return true;
             }
@@ -41,6 +42,6 @@ public class SettingsFragment extends PreferenceFragmentCompat{
     public void onDestroyView() {
         super.onDestroyView();
 
-        MainActivity.getInstance().NOTIFIER.notifieChanges(MainActivity.getInstance().FETCHER.fetch());
+        MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
     }
 }

@@ -41,6 +41,7 @@ public class Notifier {
     }
 
     public void notifieChanges(List<Substitution> changes){
+        if(changes == null)return;
         changes = MainActivity.getInstance().COURSES.strip(changes);
         if(changes.isEmpty())return;
         MainActivity.requestPermissions();
