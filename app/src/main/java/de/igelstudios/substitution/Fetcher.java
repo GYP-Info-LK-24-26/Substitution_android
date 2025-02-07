@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
@@ -45,6 +47,22 @@ import javax.net.ssl.X509TrustManager;
 
 public class Fetcher extends SQLiteOpenHelper {
     private final Context context;
+    private static TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }
+    };
     private static final int DB_VERSION = 1;
 
     public Fetcher(@Nullable Context context, @Nullable String name) {
@@ -137,9 +155,22 @@ public class Fetcher extends SQLiteOpenHelper {
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
         if(!isConnected || !isWiFi)return new ArrayList<>();
 
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        new Thread(() -> {
+            try {
+
+                String result = makeHttpsRequest();
+                future.complete(result);
+
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+            }
+        }).start();
+
         try {
             List<Substitution> subs = new ArrayList<>();
-            String data = makeHttpsRequest();
+            String data = future.get();
             if(data.charAt(0) == 'E'){
                 MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
                 return null;
@@ -156,7 +187,7 @@ public class Fetcher extends SQLiteOpenHelper {
             }
 
             return subs;
-        } catch (JSONException e) {
+        } catch (ExecutionException | InterruptedException | JSONException e) {
             throw new RuntimeException(e);
         }
     }
