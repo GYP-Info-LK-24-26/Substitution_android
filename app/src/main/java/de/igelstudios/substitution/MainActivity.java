@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public Fetcher FETCHER = null;
     public Notifier NOTIFIER = null;
     public RequestedCourses COURSES = null;
+    public Updater UPDATER = null;
     public boolean second = false;
     public boolean settings = false;
 
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             NOTIFIER = new Notifier(this.getApplicationContext());
             COURSES = new RequestedCourses(this.getApplicationContext(),"requested_courses");
             new Config(this.getApplicationContext());
+            UPDATER = new Updater(this.getApplicationContext());
         }
 
         super.onCreate(savedInstanceState);

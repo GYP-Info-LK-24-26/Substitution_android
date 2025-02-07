@@ -4,14 +4,28 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 public class RequestedCourses extends SQLiteOpenHelper {
     private static final List<Course> COURSE_LIST = List.of(new Course(1,"Stz",1,46),new Course(1,"Snd",1,2),
@@ -75,6 +89,94 @@ public class RequestedCourses extends SQLiteOpenHelper {
             new Course(10,"Dil",3,36),new Course(10,"Hof",3,10),new Course(11,"Shc",2,20),
             new Course(11,"Web",3,23),new Course(11,"Knz",3,19),new Course(11,"Hof",3,10),
             new Course(11,"Dil",3,36),new Course(11,"Kam",3,26));
+
+    public void fetchAndAdd() {
+        CompletableFuture<String> future = new CompletableFuture<>();
+
+        new Thread(() -> {
+            try {
+
+                String result = makeHttpsRequest();
+                future.complete(result);
+
+            } catch (Exception e) {
+                future.completeExceptionally(e);
+            }
+        }).start();
+
+        try {
+            String data = future.get();
+            if(data.charAt(0) == 'E'){
+                MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                return;
+            }else if(data.equals("69420")){
+                MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                return;
+            }else{
+                JSONArray object = new JSONArray(data);
+                List<Integer> courseIDS = new ArrayList<>();
+                for (int i = 0; i < object.length(); i++) {
+                    int sub = ((Integer) object.get(i));
+                    courseIDS.add(sub);
+                }
+
+                writeCourses(courseIDS);
+            }
+        } catch (ExecutionException | InterruptedException | JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String makeHttpsRequest() {
+        String result = "";
+        try {
+            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/courses");
+
+            // Open connection
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Accept", "application/json");
+            urlConnection.setDoOutput(true);
+
+            try(OutputStream os = urlConnection.getOutputStream()) {
+                String json = "[\"" + Config.get().getName() + "\",\"" + Config.get().getLast_name() + "\",\"" + Config.get().getBirth_date() + "\",\"" + Config.get().getKey() + "\"]";
+                byte[] input = json.getBytes(StandardCharsets.UTF_8);
+                os.write(input, 0, input.length);
+            }
+
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.setReadTimeout(15000);
+
+            int statusCode = urlConnection.getResponseCode();
+            if (statusCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+                result = stringBuilder.toString();
+            } else {
+                result = "Error: " + statusCode;
+            }
+
+            urlConnection.disconnect();
+        } catch (Exception e) {
+            result = "Exception: " + e.getMessage();
+        }
+        return result;
+    }
+
+    private void writeCourses(List<Integer> courseIDS) {
+        for (List<List<Course>> sortedCours : sorted_courses) {
+            for (List<Course> sortedCour : sortedCours) {
+                for (Course course : sortedCour) {
+                    if(courseIDS.contains(course.course))toggle(course);
+                }
+            }
+        }
+    }
 
     public static class Course{
         public Course(int lesson,String teacher,int day){

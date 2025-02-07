@@ -32,4 +32,14 @@ public class Config {
     public String getLast_name() {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getString("last_name","");
     }
+
+    public int getMajor(){
+        //TODO add
+        return 0;
+    }
+
+    public int getMinor(){
+        //TODO add
+        return 0;
+    }
 }

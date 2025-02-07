@@ -22,6 +22,7 @@ public class MidnightClearer extends Worker {
     @Override
     public Result doWork() {
         MainActivity.getInstance().FETCHER.cleanOld();
+        MainActivity.getInstance().UPDATER.update();
         return Result.success();
     }
 

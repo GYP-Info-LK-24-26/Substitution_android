@@ -24,4 +24,12 @@
         app:key="birth_date"
         app:title="Enter birth date (YYYY-MM-DD)"/>
 
+    <Preference
+        app:title="Lade meinen Stundenplan"
+        app:key="load_table"/>
+
+    <Preference
+        app:title="Update"
+        app:key="update"/>
+
 </PreferenceScreen>
