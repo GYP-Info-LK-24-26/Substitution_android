@@ -1,5 +1,10 @@
 package de.igelstudios.substitution;
 
+import static android.app.Activity.RESULT_OK;
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
+import static com.google.firebase.crashlytics.buildtools.reloc.com.google.common.reflect.Reflection.getPackageName;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -16,10 +21,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 
 public class Updater {
     private Context context;
-
+    private static final String gitURL = "https://gyp-info-lk-24-26.github.io/Substitution_android/";
     public Updater(Context context){
         this.context = context;
     }
@@ -39,16 +46,20 @@ public class Updater {
                     String version = makeHttpsRequest("version");
                     int idx = version.indexOf('.');
                     int major = Integer.parseInt(version.substring(0,idx));
-                    int minor = Integer.parseInt(version.substring(idx + 1,version.indexOf(idx + 1,'.')));
+                    int sec = version.indexOf('.',idx + 1);
+                    sec = sec == -1?version.length() - idx + 1:sec;
+                    int minor = Integer.parseInt(version.substring(idx + 1,sec));
                     if(major <= Config.get().getMajor() && minor <= Config.get().getMinor())return;
                 }
 
                 File apkFile = new File(context.getCacheDir(), "app_update.apk");
 
-                URL url = new URL("https://leafrinari-clan.dynv6.net:4442/download");
+                String name = "app-" + (MainActivity.isDebug?"debug":"release") + ".apk";
+
+                URL url = new URL(/*"https://gyp-info-lk-24-26.github.io/Substitution_android/app-release.apk"*/gitURL + name);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
-                connection.setDoOutput(true);
+                //connection.setDoOutput(true);
                 connection.connect();
 
                 InputStream inputStream = connection.getInputStream();
@@ -72,7 +83,18 @@ public class Updater {
     }
 
     private void installApk(File apkFile) {
+        //Uri apkUri = Uri.fromFile(apkFile);
         Uri apkUri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", apkFile);
+
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!context.getPackageManager().canRequestPackageInstalls()) {
+                // Redirect to the settings page where the user can allow the app to install APKs
+                Intent settingsIntent = new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                        .setData(Uri.parse("package:" + context.getPackageName()));
+                startActivityForResult(settingsIntent, 1234); // Request code can be anything
+                return;
+            }
+        }*/
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
@@ -85,20 +107,14 @@ public class Updater {
     private String makeHttpsRequest(String path) {
         String result = "";
         try {
-            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/" + path);
+            URL url = new URL(gitURL + path);
 
             // Open connection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestMethod("GET");
+            /*urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setRequestProperty("Accept", "application/json");
-            urlConnection.setDoOutput(true);
-
-            try(OutputStream os = urlConnection.getOutputStream()) {
-                String json = "[\"" + Config.get().getName() + "\",\"" + Config.get().getLast_name() + "\",\"" + Config.get().getBirth_date() + "\",\"" + Config.get().getKey() + "\"]";
-                byte[] input = json.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
+            urlConnection.setDoOutput(true);*/
 
             urlConnection.setConnectTimeout(15000);
             urlConnection.setReadTimeout(15000);

@@ -147,8 +147,8 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 os.write(input, 0, input.length);
             }
 
-            urlConnection.setConnectTimeout(15000);
-            urlConnection.setReadTimeout(15000);
+            urlConnection.setConnectTimeout(5000);
+            urlConnection.setReadTimeout(5000);
 
             int statusCode = urlConnection.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
@@ -322,7 +322,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
         try {
             if(hasData())empty.execute();
             else loadData(empty);
-            if(await)future.get();
+            if(await && false)future.get();
         }catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

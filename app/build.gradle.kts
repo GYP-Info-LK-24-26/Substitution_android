@@ -32,6 +32,16 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
+    buildTypes {
+        debug {
+            resValue("bool", "debug", "true")
+        }
+
+        release {
+            resValue("bool", "debug", "false")
+        }
+    }
 }
 
 dependencies {

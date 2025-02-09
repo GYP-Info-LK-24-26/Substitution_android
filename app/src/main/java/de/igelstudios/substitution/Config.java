@@ -34,12 +34,10 @@ public class Config {
     }
 
     public int getMajor(){
-        //TODO add
-        return 0;
+        return MainActivity.VERSION_MAJOR;
     }
 
     public int getMinor(){
-        //TODO add
-        return 0;
+        return MainActivity.VERSION_MINOR;
     }
 }

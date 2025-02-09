@@ -38,6 +38,9 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     //private static final Map<Integer,String> permissionIds = Map.of(0,Manifest.permission.POST_NOTIFICATIONS,1,Manifest.permission.ACCESS_NETWORK_STATE);
+    public static final int VERSION_MAJOR = 1;
+    public static final int VERSION_MINOR = 0;
+    public static final int VERSION_FIX = 0;
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -50,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
     public Updater UPDATER = null;
     public boolean second = false;
     public boolean settings = false;
+    public static boolean isDebug = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        isDebug = getResources().getBoolean(R.bool.debug);
         instance = this;
         if (ActivityCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);

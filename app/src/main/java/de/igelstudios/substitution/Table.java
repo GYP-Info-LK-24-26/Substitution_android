@@ -49,12 +49,26 @@ public class Table {
             if(!change.date.equals(date)){
                 date = change.date;
                 TableRow row = new TableRow(context);
-                TextView text;
-                for (int i = 0; i < 5; i++) {
-                    text = new TextView(context);
-                    text.setText("");
-                    row.addView(text);
-                }
+                TextView text = new TextView(context);
+                text.setText("     ---------");
+                text.setTextColor(MainActivity.textColor.toArgb());
+                row.addView(text);
+                text = new TextView(context);
+                text.setText("------------");
+                text.setTextColor(MainActivity.textColor.toArgb());
+                row.addView(text);
+                text = new TextView(context);
+                text.setTextColor(MainActivity.textColor.toArgb());
+                text.setText("-------------------");
+                row.addView(text);
+                text = new TextView(context);
+                text.setTextColor(MainActivity.textColor.toArgb());
+                text.setText("------------");
+                row.addView(text);
+                text = new TextView(context);
+                text.setTextColor(MainActivity.textColor.toArgb());
+                text.setText("----------");
+                row.addView(text);
                 text = new TextView(context);
                 text.setText(date);
                 text.setTextColor(MainActivity.textColor.toArgb());
