@@ -41,6 +41,9 @@ public class Notifier {
     }
 
     public void notifieChanges(List<Substitution> changes){
+        FirstFragment.locked = false;
+        //FirstFragment.instance.binding.reloadBtn.setEnabled(true);
+        notifySimple("No changes in courses");
         if(changes == null)return;
         changes = MainActivity.getInstance().COURSES.strip(changes);
         if(changes.isEmpty())return;

@@ -18,8 +18,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import de.igelstudios.substitution.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {
+    public static boolean locked = false;
 
-    private FragmentFirstBinding binding;
+    public FragmentFirstBinding binding;
+    //public static FirstFragment instance;
 
     @Override
     public View onCreateView(
@@ -41,6 +43,7 @@ public class FirstFragment extends Fragment {
         );
 
         binding.reloadBtn.setOnClickListener(v -> {
+            if(locked)return;
             MainActivity.requestPermissions();
             /*ConnectivityManager cm = (ConnectivityManager)this.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -48,6 +51,8 @@ public class FirstFragment extends Fragment {
             boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
             boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
             if(isConnected && isWiFi) */
+            locked = true;
+            //binding.reloadBtn.setEnabled(false);
             MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges)
             ;
         });
@@ -66,5 +71,6 @@ public class FirstFragment extends Fragment {
         MainActivity.getInstance().second = false;
         MainActivity.getInstance().settings = false;
         MainActivity.getInstance().SUBSTITUTION_TABLE.updateShownTable();
+        //instance = this;
     }
 }

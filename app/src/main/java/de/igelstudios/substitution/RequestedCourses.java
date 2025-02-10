@@ -32,7 +32,7 @@ import java.util.function.Function;
 public class RequestedCourses extends SQLiteOpenHelper {
     @FunctionalInterface
     public static interface Empty{
-        void execute();
+        void execute(boolean value);
     }
     public void fetchAndAdd() {
         new Thread(() -> {
@@ -71,9 +71,11 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 String data = makeHttpsRequest("table");
                 if(data.charAt(0) == 'E'){
                     MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                    empty.execute(false);
                     return;
                 }else if(data.equals("69420")){
                     MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                    empty.execute(false);
                     return;
                 }else{
                     JSONArray object = new JSONArray(data);
@@ -88,9 +90,11 @@ public class RequestedCourses extends SQLiteOpenHelper {
                     data = makeHttpsRequest("lessons");
                     if(data.charAt(0) == 'E'){
                         MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                        empty.execute(false);
                         return;
                     }else if(data.equals("69420")){
                         MainActivity.getInstance().NOTIFIER.notifySimple("Wrong credentials used");
+                        empty.execute(false);
                         return;
                     }else{
                         object = new JSONArray(data);
@@ -101,7 +105,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                         }
 
                         reloadLessons(lessons);
-                        empty.execute();
+                        empty.execute(true);
                     }
                 }
             } catch (Exception e) {
@@ -269,9 +273,10 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
     public void load(boolean await){
         if(loaded)return;
-        loaded = true;
         CompletableFuture<Boolean> future = new CompletableFuture<>();
-        Empty empty = () -> {
+        Empty empty = (val) -> {
+            if(!val)future.complete(false);
+            loaded = true;
             SQLiteDatabase db = this.getReadableDatabase();
             try(Cursor cr = db.rawQuery("SELECT Lesson.lessonTime,Lesson.teacher,Lesson.day,Lesson.course FROM Lesson INNER JOIN SELECTED_COURSES ON" +
                     " lesson.course = SELECTED_COURSES.course",null)){
@@ -320,9 +325,9 @@ public class RequestedCourses extends SQLiteOpenHelper {
             future.complete(true);
         };
         try {
-            if(hasData())empty.execute();
+            if(hasData())empty.execute(true);
             else loadData(empty);
-            if(await && false)future.get();
+            if(await)future.get();
         }catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }

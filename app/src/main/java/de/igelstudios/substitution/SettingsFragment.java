@@ -43,5 +43,6 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         super.onDestroyView();
 
         MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
+        MainActivity.getInstance().COURSES.load();
     }
 }
