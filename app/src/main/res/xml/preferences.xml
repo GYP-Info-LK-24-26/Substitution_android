@@ -47,6 +47,10 @@
         app:key="alpha"
         />
 
+    <Preference
+    android:key="build_number"
+    android:title="Current Build Number" />
+
     <CheckBoxPreference
         app:title="Debug"
         app:key="debug"
@@ -63,5 +67,7 @@
             android:key="url"
             android:title="Debugging URL" />
     </PreferenceCategory>
+
+
 
 </PreferenceScreen>
