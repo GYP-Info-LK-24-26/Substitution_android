@@ -18,6 +18,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.List;
 
 public class Notifier {
@@ -42,13 +45,20 @@ public class Notifier {
 
     public void notifieChanges(List<Substitution> changes){
         FirstFragment.locked = false;
+        Snackbar.make(MainActivity.getInstance().getView(),"Finished Loading", BaseTransientBottomBar.LENGTH_SHORT).show();
         //FirstFragment.instance.binding.reloadBtn.setEnabled(true);
-        notifySimple("No changes in courses");
-        if(changes == null)return;
+
+        if(changes == null){
+            if(Config.get().isDebug())notifySimple("No changes in courses");
+            return;
+        }
         changes = MainActivity.getInstance().COURSES.strip(changes);
-        if(changes.isEmpty())return;
+        if(changes.isEmpty()){
+            if(Config.get().isDebug())notifySimple("No changes in courses");
+            return;
+        }
         MainActivity.requestPermissions();
-        MainActivity.getInstance().SUBSTITUTION_TABLE.updateShownTable();
+        MainActivity.getInstance().SUBSTITUTION_TABLE.liveData.postValue(null);
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notify)
                 .setContentTitle("Vertretungs Plan informationen")

@@ -19,11 +19,27 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 
+/**
+ * version file layout:
+ * release version<br>
+ * release version build number<br>
+ * <br>
+ * pre-release version<br>
+ * pre-release version build number<br>
+ * <br>
+ * beta version<br>
+ * beta version build number<br>
+ * <br>
+ * alpha version<br>
+ * alpha version build number<br>
+ */
 public class Updater {
     private Context context;
     private static final String gitURL = "https://gyp-info-lk-24-26.github.io/Substitution_android/";
@@ -40,21 +56,37 @@ public class Updater {
     }
 
     public void downloadAndInstallApk(boolean checkVersion) {
+
+        if(checkVersion){
+            List<String> data = makeHttpsRequest("docs/version");
+            if(data.size() < 8)return;
+
+            int version = Integer.parseInt(data.get(1));
+            if(version > Config.get().getCurrentBuildNumber())install();
+
+            if(!Config.get().installPreRelease())return;
+            version = Integer.parseInt(data.get(3));
+            if(version > Config.get().getCurrentBuildNumber())install();
+
+            if(!Config.get().installBeta())return;
+            version = Integer.parseInt(data.get(5));
+            if(version > Config.get().getCurrentBuildNumber())install();
+
+            if(!Config.get().installAlpha())return;
+            version = Integer.parseInt(data.get(7));
+            if(version > Config.get().getCurrentBuildNumber())install();
+        }
+
+    }
+
+    private void install() {
         new Thread(() -> {
             try {
-                if(checkVersion){
-                    String version = makeHttpsRequest("version");
-                    int idx = version.indexOf('.');
-                    int major = Integer.parseInt(version.substring(0,idx));
-                    int sec = version.indexOf('.',idx + 1);
-                    sec = sec == -1?version.length() - idx + 1:sec;
-                    int minor = Integer.parseInt(version.substring(idx + 1,sec));
-                    if(major <= Config.get().getMajor() && minor <= Config.get().getMinor())return;
-                }
+
 
                 File apkFile = new File(context.getCacheDir(), "app_update.apk");
 
-                String name = "app-" + (MainActivity.isDebug?"debug":"release") + ".apk";
+                String name = (MainActivity.isDebug ? "app/build/outputs/apk/debug/app-debug.apk" : "app/release/app-release.apk");
 
                 URL url = new URL(/*"https://gyp-info-lk-24-26.github.io/Substitution_android/app-release.apk"*/gitURL + name);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -104,8 +136,8 @@ public class Updater {
         context.startActivity(intent);
     }
 
-    private String makeHttpsRequest(String path) {
-        String result = "";
+    private List<String> makeHttpsRequest(String path) {
+        List<String> result = new ArrayList<>();
         try {
             URL url = new URL(gitURL + path);
 
@@ -122,19 +154,17 @@ public class Updater {
             int statusCode = urlConnection.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
+                String line = "";
                 while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
+                    result.add(line);
                 }
-                result = stringBuilder.toString();
             } else {
-                result = "Error: " + statusCode;
+                result = List.of("Error: " + statusCode);
             }
 
             urlConnection.disconnect();
         } catch (Exception e) {
-            result = "Exception: " + e.getMessage();
+            return List.of("Exception: " + e.getMessage());
         }
         return result;
     }

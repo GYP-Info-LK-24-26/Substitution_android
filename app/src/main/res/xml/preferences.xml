@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     android:id="@+id/settings_container"
 
@@ -31,5 +31,37 @@
     <Preference
         app:title="Update"
         app:key="update"/>
+
+    <CheckBoxPreference
+        app:title="Download Pre-release versions"
+        app:key="pre_release"
+        />
+
+    <CheckBoxPreference
+        app:title="Download Beta versions"
+        app:key="beta"
+        />
+
+    <CheckBoxPreference
+        app:title="Download Alpha versions"
+        app:key="alpha"
+        />
+
+    <CheckBoxPreference
+        app:title="Debug"
+        app:key="debug"
+        />
+    <PreferenceCategory android:title="Debug Settings" android:key="debug_category">
+
+        <EditTextPreference
+            android:defaultValue="4442"
+            android:key="port"
+            android:title="Debugging Port" />
+
+        <EditTextPreference
+            android:defaultValue="https://leafrinari-clan.dynv6.net"
+            android:key="url"
+            android:title="Debugging URL" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

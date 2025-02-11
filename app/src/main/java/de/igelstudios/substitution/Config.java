@@ -33,11 +33,37 @@ public class Config {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getString("last_name","");
     }
 
-    public int getMajor(){
-        return MainActivity.VERSION_MAJOR;
+    public int getPort(){
+        if(!isDebug())return 4442;
+        return Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this.context).getString("port","4442"));
     }
 
-    public int getMinor(){
-        return MainActivity.VERSION_MINOR;
+    public String getURL(){
+        if(!isDebug())return "https://leafrinari-clan.dynv6.net";
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getString("url","https://leafrinari-clan.dynv6.net");
+    }
+
+    public String getConnectionURL(){
+        return getURL() + ":" + getPort() + "/";
+    }
+
+    public boolean isDebug(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("debug",false);
+    }
+
+    public boolean installPreRelease(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("pre_release",false);
+    }
+
+    public boolean installBeta(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("beta",false);
+    }
+
+    public boolean installAlpha(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("alpha",false);
+    }
+
+    public int getCurrentBuildNumber(){
+        return MainActivity.BUILD_NUMBER;
     }
 }

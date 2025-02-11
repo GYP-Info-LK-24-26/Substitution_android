@@ -5,13 +5,20 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+
 import java.util.List;
 
 public class Table {
     private Context context;
+    public MutableLiveData<List<Substitution>> liveData = new MutableLiveData<>();
 
     public Table(Context context){
         this.context = context;
+        liveData.observe(MainActivity.getInstance(),(data) -> this.updateShownTable());
     }
 
     private void update(TableLayout table,List<Substitution> substitutions){

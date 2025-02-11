@@ -64,7 +64,7 @@ public class Fetcher extends SQLiteOpenHelper {
                 }
             }
     };
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     public Fetcher(@Nullable Context context, @Nullable String name) {
         super(context, name,null,DB_VERSION);
@@ -139,7 +139,7 @@ public class Fetcher extends SQLiteOpenHelper {
 
     private boolean contains(List<Substitution> list,Substitution current){
         for (Substitution substitution : list) {
-            if(substitution.lesson == current.lesson && substitution.teacher.equals(current.teacher))return true;
+            if(substitution.lesson == current.lesson && substitution.teacher.equals(current.teacher) && substitution.date.equals(current.date))return true;
         }
         return false;
     }
@@ -204,18 +204,22 @@ public class Fetcher extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date TEXT,PRIMARY KEY(lesson,teacher));");
+        db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date TEXT,PRIMARY KEY(lesson,teacher,date));");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DELETE FROM Substitution");
+        if(oldVersion == 1 && newVersion == 2){
+            db.execSQL("DROP TABLE Substitution");
+            db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date TEXT,PRIMARY KEY(lesson,teacher,date));");
+        }
     }
 
     private String makeHttpsRequest() {
         String result = "";
         try {
-            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/substitution/");
+            URL url = new URL(Config.get().getConnectionURL() + "substitution/");
 
             // Open connection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();

@@ -38,9 +38,7 @@ import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     //private static final Map<Integer,String> permissionIds = Map.of(0,Manifest.permission.POST_NOTIFICATIONS,1,Manifest.permission.ACCESS_NETWORK_STATE);
-    public static final int VERSION_MAJOR = 1;
-    public static final int VERSION_MINOR = 0;
-    public static final int VERSION_FIX = 0;
+    public static final int BUILD_NUMBER = 1;
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -174,5 +172,9 @@ public class MainActivity extends AppCompatActivity {
 
     public ActivityMainBinding getBinding() {
         return binding;
+    }
+
+    public View getView(){
+        return findViewById(android.R.id.content);
     }
 }

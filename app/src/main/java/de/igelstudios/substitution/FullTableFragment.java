@@ -54,6 +54,26 @@ public class FullTableFragment extends Fragment {
     ) {
 
         binding = FragmentTableBinding.inflate(inflater, container, false);
+
+        binding.selAll.setOnClickListener(v -> {
+            for (RequestedCourses.Course course : MainActivity.getInstance().COURSES.allCourses) {
+                if(!course.selected){
+                    MainActivity.getInstance().COURSES.add(course.id);
+                    course.selected = true;
+                }
+            }
+            FullTableFragment.this.update();
+        });
+
+        binding.selNone.setOnClickListener(v -> {
+            for (RequestedCourses.Course course : MainActivity.getInstance().COURSES.allCourses) {
+                if(course.selected){
+                    MainActivity.getInstance().COURSES.remove(course.id);
+                    course.selected = false;
+                }
+            }
+            FullTableFragment.this.update();
+        });
         return binding.getRoot();
 
     }
@@ -65,20 +85,29 @@ public class FullTableFragment extends Fragment {
         TableLayout table = MainActivity.getInstance().findViewById(R.id.sub_table);
         table.removeAllViews();
 
-
+        String lastSubject = "";
         for (int i = 0;i < courses.size();i++) {
             RequestedCourses.Course cours = courses.get(i);
+
             TableRow row = new TableRow(this.getContext());
-            TextView view = new TextView(this.getContext());
-            view.setText(cours.teacher + "  ");
-            if(cours.selected)view.setTextColor(0xFF00FF00);
-            row.addView(view);
-            view.setOnTouchListener(new Listener(i));
-            view = new TextView(this.getContext());
-            view.setText(cours.subject);
-            if(cours.selected)view.setTextColor(0xFF00FF00);
-            view.setOnTouchListener(new Listener(i));
-            row.addView(view);
+            if(!lastSubject.equalsIgnoreCase(cours.subject.substring(1,cours.subject.length() - 1))) {
+                lastSubject = cours.subject.substring(1,cours.subject.length() - 1);
+                TextView view = new TextView(this.getContext());
+                view.setText("");
+                row.addView(view);
+                table.addView(row);
+                row = new TableRow(this.getContext());
+            }
+                TextView view = new TextView(this.getContext());
+                view.setText(cours.teacher + "  ");
+                if (cours.selected) view.setTextColor(0xFF00FF00);
+                row.addView(view);
+                view.setOnTouchListener(new Listener(i));
+                view = new TextView(this.getContext());
+                view.setText(cours.subject);
+                if (cours.selected) view.setTextColor(0xFF00FF00);
+                view.setOnTouchListener(new Listener(i));
+                row.addView(view);
             table.addView(row);
         }
 

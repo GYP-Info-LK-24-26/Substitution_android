@@ -136,7 +136,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     private String makeHttpsRequest(String path) {
         String result = "";
         try {
-            URL url = new URL("https://leafrinari-clan.dynv6.net:4442/" + path + "/");
+            URL url = new URL(Config.get().getConnectionURL() + path + "/");
 
             // Open connection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -312,7 +312,12 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 }
             }
 
-            allCourses.sort((s1,s2) -> s1.teacher.compareToIgnoreCase(s2.teacher));
+            allCourses.sort((s1,s2) -> {
+                if(s1.subject.substring(1).equalsIgnoreCase(s2.subject.substring(1))){
+                    return s1.subject.substring(1).compareTo(s2.subject.substring(1));
+                }
+                return s1.subject.substring(1).compareToIgnoreCase(s2.subject.substring(1));
+            });
 
             for (Course course : allCourses) {
                 for (LessonCourse selected : selectedCourses) {
