@@ -1,8 +1,12 @@
 package de.igelstudios.substitution;
 
 import android.content.Context;
+import android.os.Build;
 
 import androidx.preference.PreferenceManager;
+
+import java.io.IOException;
+import java.util.Objects;
 
 public class Config {
     private static Config instance;
@@ -64,6 +68,12 @@ public class Config {
     }
 
     public int getCurrentBuildNumber(){
-        return MainActivity.BUILD_NUMBER;
+        try {
+            String val = new String(BufferUtil.read(Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("data.txt")));
+            return Integer.parseInt(val);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

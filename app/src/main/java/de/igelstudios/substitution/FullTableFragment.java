@@ -62,6 +62,10 @@ public class FullTableFragment extends Fragment {
                     course.selected = true;
                 }
             }
+
+            for (RequestedCourses.LessonCourse lesson : MainActivity.getInstance().COURSES.lessons) {
+                if(!MainActivity.getInstance().COURSES.selectedCourses.contains(lesson))MainActivity.getInstance().COURSES.selectedCourses.add(lesson);
+            }
             FullTableFragment.this.update();
         });
 
@@ -72,6 +76,7 @@ public class FullTableFragment extends Fragment {
                     course.selected = false;
                 }
             }
+            MainActivity.getInstance().COURSES.selectedCourses.clear();
             FullTableFragment.this.update();
         });
         return binding.getRoot();
@@ -90,8 +95,10 @@ public class FullTableFragment extends Fragment {
             RequestedCourses.Course cours = courses.get(i);
 
             TableRow row = new TableRow(this.getContext());
-            if(!lastSubject.equalsIgnoreCase(cours.subject.substring(1,cours.subject.length() - 1))) {
-                lastSubject = cours.subject.substring(1,cours.subject.length() - 1);
+            if(!lastSubject.equalsIgnoreCase(cours.subject.substring(1,cours.subject.length() -
+                    (Character.isDigit(cours.subject.charAt(cours.subject.length() - 1))?1:0)))) {
+                lastSubject = cours.subject.substring(1,cours.subject.length() -
+                        (Character.isDigit(cours.subject.charAt(cours.subject.length() - 1))?1:0));
                 TextView view = new TextView(this.getContext());
                 view.setText("");
                 row.addView(view);
@@ -110,45 +117,12 @@ public class FullTableFragment extends Fragment {
                 row.addView(view);
             table.addView(row);
         }
-
-        /*for (int i = 0; i < 11; i++) {
-            TableRow row = new TableRow(this.getContext());
-
-            TextView text = new TextView(this.getContext());
-            text.setText(" " + (i + 1) + "  ");
-            text.setTextColor(MainActivity.textColor.toArgb());
-            row.addView(text);
-
-            for (int j = 0; j < 5; j++) {
-                text = new TextView(this.getContext());
-                //boolean first = false;
-                StringBuilder buffer = new StringBuilder();
-                List<Pair<Integer,Integer>> colors = new ArrayList<>();
-                int charID = 0;
-                for (RequestedCourses.LessonCourse course : courses.get(i).get(j)) {
-                    buffer.append(course).append("\n");
-                    if(course.selected)colors.add(new Pair<>(charID,charID + course.toString().length()));
-                    charID += course.toString().length() + 1;
-                }
-                SpannableString span = new SpannableString(buffer.toString());
-                for (Pair<Integer, Integer> color : colors) {
-                    span.setSpan(new ForegroundColorSpan(0xFF00FF00),color.first,color.second,Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                }
-
-                text.setText(span);
-
-                text.setOnTouchListener(new Listener(j,i));
-
-                row.addView(text);
-            }
-            table.addView(row);
-        }*/
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        MainActivity.getInstance().settings = true;
+        MainActivity.getInstance().fullTable = true;
         MainActivity.getInstance().getBinding().fab.hide();
 
         update();
@@ -157,6 +131,7 @@ public class FullTableFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        MainActivity.getInstance().fullTable = false;
         MainActivity.getInstance().getBinding().fab.show();
     }
 }

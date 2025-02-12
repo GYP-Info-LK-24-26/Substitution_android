@@ -21,8 +21,10 @@ public class MidnightClearer extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        MainActivity.getInstance().FETCHER.cleanOld();
-        MainActivity.getInstance().UPDATER.update();
+        //i don't fucking know why but it works and this has probably never been called
+        //MainActivity.getInstance().FETCHER.cleanOld();
+
+        MainActivity.getInstance().NOTIFIER.askUpdate();
         return Result.success();
     }
 
@@ -34,7 +36,7 @@ public class MidnightClearer extends Worker {
 
         long initialDelay = (23 - hoursPastDay) * 3600 + (59 - minutesPastHour) * 60L - secondsPastMinute;
 
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(Scheduler.class, 1, TimeUnit.HOURS)
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(MidnightClearer.class, 1, TimeUnit.HOURS)
                 .setInitialDelay(initialDelay, TimeUnit.SECONDS)
                 .build();
 

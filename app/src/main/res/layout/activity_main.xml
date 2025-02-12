@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
@@ -16,6 +17,12 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize" />
+
+        <TextView
+            android:id="@+id/loading_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loading" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

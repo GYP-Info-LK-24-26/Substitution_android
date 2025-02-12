@@ -219,6 +219,7 @@ public class Fetcher extends SQLiteOpenHelper {
     private String makeHttpsRequest() {
         String result = "";
         try {
+            MainActivity.IS_LOADING.postValue(true);
             URL url = new URL(Config.get().getConnectionURL() + "substitution/");
 
             // Open connection
@@ -254,6 +255,7 @@ public class Fetcher extends SQLiteOpenHelper {
         } catch (Exception e) {
             result = "Exception: " + e.getMessage();
         }
+        MainActivity.IS_LOADING.postValue(false);
         return result;
     }
 }

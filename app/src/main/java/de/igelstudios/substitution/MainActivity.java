@@ -20,6 +20,8 @@ import android.view.View;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -51,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
     public Updater UPDATER = null;
     public boolean second = false;
     public boolean settings = false;
+    public boolean fullTable = false;
     public static boolean isDebug = false;
+    public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
 
 
     @Override
@@ -104,6 +108,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ((TextView) findViewById(R.id.loading_txt)).setText("");
+        IS_LOADING.observe(this, newVal -> {
+            TextView text = findViewById(R.id.loading_txt);
+            text.setText(newVal?"Loading":"");
+        });
+
         Scheduler.schedule(this.getApplicationContext());
         MidnightClearer.schedule(this.getApplicationContext());
     }
@@ -130,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
             transaction.replace(R.id.action_FirstFragment_to_settingsFragment, new SettingsFragment());
             transaction.addToBackStack(null);
             transaction.commit();*/
-            if(settings) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_fullTableFragment_to_settingsFragment);
+            if(fullTable) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_fullTableFragment_to_settingsFragment);
             else if(second) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_SecondFragment_to_settingsFragment);
-            else Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_FirstFragment_to_settingsFragment);
+            else if(!settings) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_FirstFragment_to_settingsFragment);
             return true;
         }
 

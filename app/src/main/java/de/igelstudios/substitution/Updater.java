@@ -21,6 +21,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import android.net.Uri;
 import android.os.Build;
@@ -47,46 +50,65 @@ public class Updater {
         this.context = context;
     }
 
-    public void update(){
-        downloadAndInstallApk(true);
+    public Intent update(){
+        try {
+            return downloadAndInstallApk(false).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void updateForce(){
-        downloadAndInstallApk(false);
+        downloadAndInstallApk(true).thenAccept((intent -> {
+            if(intent == null)MainActivity.getInstance().NOTIFIER.notifySimple("Keine Neue version verfügbar");
+        }));
     }
 
-    public void downloadAndInstallApk(boolean checkVersion) {
+    public CompletableFuture<Intent> downloadAndInstallApk(boolean installFile) {
+        CompletableFuture<Intent> future = new CompletableFuture<>();
 
-        if(checkVersion){
-            List<String> data = makeHttpsRequest("docs/version");
-            if(data.size() < 8)return;
-
-            int version = Integer.parseInt(data.get(1));
-            if(version > Config.get().getCurrentBuildNumber())install();
-
-            if(!Config.get().installPreRelease())return;
-            version = Integer.parseInt(data.get(3));
-            if(version > Config.get().getCurrentBuildNumber())install();
-
-            if(!Config.get().installBeta())return;
-            version = Integer.parseInt(data.get(5));
-            if(version > Config.get().getCurrentBuildNumber())install();
-
-            if(!Config.get().installAlpha())return;
-            version = Integer.parseInt(data.get(7));
-            if(version > Config.get().getCurrentBuildNumber())install();
+        List<String> data = makeHttpsRequest("docs/version");
+        if(data.size() < 8){
+            future.complete(null);
+            return future;
         }
 
+        int version = Integer.parseInt(data.get(1));
+        if(version > Config.get().getCurrentBuildNumber())return install(version,installFile);
+
+        if(!Config.get().installPreRelease()){
+            future.complete(null);
+            return future;
+        }
+        version = Integer.parseInt(data.get(3));
+        if(version > Config.get().getCurrentBuildNumber())return install(version,installFile);
+
+        if(!Config.get().installBeta()){
+            future.complete(null);
+            return future;
+        }
+        version = Integer.parseInt(data.get(5));
+        if(version > Config.get().getCurrentBuildNumber())return install(version,installFile);
+
+        if(!Config.get().installAlpha()){
+            future.complete(null);
+            return future;
+        }
+        version = Integer.parseInt(data.get(7));
+        if(version > Config.get().getCurrentBuildNumber())return install(version,installFile);
+
+        future.complete(null);
+        return future;
     }
 
-    private void install() {
+    private CompletableFuture<Intent> install(int version,boolean installFile) {
+        CompletableFuture<Intent> future = new CompletableFuture<>();
         new Thread(() -> {
             try {
-
-
+                MainActivity.IS_LOADING.postValue(true);
                 File apkFile = new File(context.getCacheDir(), "app_update.apk");
 
-                String name = (MainActivity.isDebug ? "app/build/outputs/apk/debug/app-debug.apk" : "app/release/app-release.apk");
+                String name = (MainActivity.isDebug ? "docs/app-debug-" + version + ".apk" : "docs/app-release-" + version + ".apk");
 
                 URL url = new URL(/*"https://gyp-info-lk-24-26.github.io/Substitution_android/app-release.apk"*/gitURL + name);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -106,15 +128,18 @@ public class Updater {
                 inputStream.close();
                 connection.disconnect();
 
-                // Install APK
-                installApk(apkFile);
+                MainActivity.IS_LOADING.postValue(false);
+                future.complete(installApk(apkFile,installFile));
             } catch (Exception e) {
-                e.printStackTrace();
+                MainActivity.IS_LOADING.postValue(false);
+                future.completeExceptionally(e);
             }
         }).start();
+
+        return future;
     }
 
-    private void installApk(File apkFile) {
+    private Intent installApk(File apkFile,boolean installFile) {
         //Uri apkUri = Uri.fromFile(apkFile);
         Uri apkUri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", apkFile);
 
@@ -133,12 +158,14 @@ public class Updater {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        context.startActivity(intent);
+        if(installFile)context.startActivity(intent);
+        return intent;
     }
 
     private List<String> makeHttpsRequest(String path) {
         List<String> result = new ArrayList<>();
         try {
+            MainActivity.IS_LOADING.postValue(true);
             URL url = new URL(gitURL + path);
 
             // Open connection
@@ -164,8 +191,10 @@ public class Updater {
 
             urlConnection.disconnect();
         } catch (Exception e) {
+            MainActivity.IS_LOADING.postValue(false);
             return List.of("Exception: " + e.getMessage());
         }
+        MainActivity.IS_LOADING.postValue(false);
         return result;
     }
 }

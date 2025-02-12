@@ -107,6 +107,7 @@ public class SettingsFragment extends PreferenceFragmentCompat{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        MainActivity.getInstance().settings = false;
 
         MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
         MainActivity.getInstance().COURSES.load();

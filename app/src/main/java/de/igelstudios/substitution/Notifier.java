@@ -3,11 +3,15 @@ package de.igelstudios.substitution;
 import static android.icu.number.NumberRangeFormatter.with;
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import static de.igelstudios.substitution.MainActivity.getInstance;
+
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.widget.TableLayout;
@@ -68,6 +72,18 @@ public class Notifier {
 
 
         NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
+
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                Build.VERSION.SDK_INT >= 32) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
+        }
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.ACCESS_NETWORK_STATE},0);
+        }
+
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.INTERNET},0);
+        }
         compat.notify(0/*TODO replace with actual id*/,notification);
     }
 
@@ -79,6 +95,18 @@ public class Notifier {
                 .setContentText(text)
                 .build();
         NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
+
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                Build.VERSION.SDK_INT >= 32) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
+        }
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.ACCESS_NETWORK_STATE},0);
+        }
+
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.INTERNET},0);
+        }
         compat.notify(1/*TODO replace with actual id*/,notification);
     }
 
@@ -97,5 +125,35 @@ public class Notifier {
         }
 
         return builder.toString();
+    }
+
+    public void askUpdate(){
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
+                Build.VERSION.SDK_INT >= 32) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
+        }
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.ACCESS_NETWORK_STATE},0);
+        }
+
+        if (ActivityCompat.checkSelfPermission(getInstance().getApplicationContext(), Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.INTERNET},0);
+        }
+
+
+        Intent intent = getInstance().UPDATER.update();
+        if(intent == null)return;
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,intent, PendingIntent.FLAG_IMMUTABLE);
+
+        Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.notify)
+                .setContentTitle("Update")
+                .setContentText("Tap to update Substitution")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true).build();
+
+        NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
+        compat.notify(2/*TODO replace with actual id*/,notification);
     }
 }

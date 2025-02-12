@@ -136,6 +136,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     private String makeHttpsRequest(String path) {
         String result = "";
         try {
+            MainActivity.IS_LOADING.postValue(true);
             URL url = new URL(Config.get().getConnectionURL() + path + "/");
 
             // Open connection
@@ -171,6 +172,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
         } catch (Exception e) {
             result = "Exception: " + e.getMessage();
         }
+        MainActivity.IS_LOADING.postValue(false);
         return result;
     }
 
@@ -246,8 +248,8 @@ public class RequestedCourses extends SQLiteOpenHelper {
         }
     }
     private static final int DB_VERSION = 2;
-    private List<LessonCourse> selectedCourses;
-    private List<LessonCourse> lessons;
+    public List<LessonCourse> selectedCourses;
+    public List<LessonCourse> lessons;
     public List<Course> allCourses;
     private boolean loaded = false;
 

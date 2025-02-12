@@ -52,11 +52,22 @@ public class Table {
         table.addView(header);
 
         String date = "";
+        boolean first = false;
         for (Substitution change : substitutions) {
             if(!change.date.equals(date)){
                 date = change.date;
-                TableRow row = new TableRow(context);
-                TextView text = new TextView(context);
+                TableRow row;
+                TextView text;
+                if(first) {
+                    row = new TableRow(context);
+                    text = new TextView(context);
+                    text.setText(" ");
+                    row.addView(text);
+                    table.addView(row);
+                }
+                first = true;
+                row = new TableRow(context);
+                text = new TextView(context);
                 text.setText("     ---------");
                 text.setTextColor(MainActivity.textColor.toArgb());
                 row.addView(text);
