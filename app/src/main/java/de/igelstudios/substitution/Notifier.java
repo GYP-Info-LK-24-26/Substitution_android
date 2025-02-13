@@ -63,9 +63,15 @@ public class Notifier {
         }
         MainActivity.requestPermissions();
         MainActivity.getInstance().SUBSTITUTION_TABLE.liveData.postValue(null);
+
+        Intent intent = new Intent(MainActivity.getInstance(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notify)
                 .setContentTitle("Vertretungs Plan informationen")
+                .setContentIntent(pendingIntent)
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText( toText(changes)))
                 .build();
@@ -89,10 +95,15 @@ public class Notifier {
 
     public void notifySimple(String text){
         MainActivity.requestPermissions();
+
+        Intent intent = new Intent(MainActivity.getInstance(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notify)
                 .setContentTitle("Vertretungs Plan informationen")
                 .setContentText(text)
+                .setContentIntent(pendingIntent)
                 .build();
         NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
 
@@ -121,6 +132,7 @@ public class Notifier {
                 builder.append(" mit ").append(change.course_new);
             if(change.room != null && !change.room.isEmpty())
                 builder.append(" in ").append(change.room);
+            builder.append(" am ").append(change.date);
             builder.append("  ").append(change.info).append('\n');
         }
 
