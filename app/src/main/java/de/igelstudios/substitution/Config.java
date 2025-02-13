@@ -1,7 +1,6 @@
 package de.igelstudios.substitution;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.preference.PreferenceManager;
 
@@ -69,7 +68,7 @@ public class Config {
 
     public int getCurrentBuildNumber(){
         try {
-            String val = new String(BufferUtil.read(Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("data.txt")));
+            String val = new String(Util.read(Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("data.txt")));
             return Integer.parseInt(val);
         } catch (IOException e) {
             throw new RuntimeException(e);

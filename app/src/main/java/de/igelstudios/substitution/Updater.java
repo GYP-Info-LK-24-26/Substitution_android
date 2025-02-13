@@ -68,6 +68,7 @@ public class Updater {
         CompletableFuture<Intent> future = new CompletableFuture<>();
 
         List<String> data = makeHttpsRequest("docs/version");
+        if(!data.isEmpty() && data.get(0).charAt(0) == 'E')MainActivity.getInstance().NOTIFIER.notifySimple("Error during updating");
         if(data.size() < 8){
             future.complete(null);
             return future;

@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             textColor = Color.valueOf(0xFFFFFFFF);
         } else {
-            textColor = Color.valueOf(0);
+            textColor = Color.valueOf(0xFF000000);
         }
 
         if(SUBSTITUTION_TABLE == null){

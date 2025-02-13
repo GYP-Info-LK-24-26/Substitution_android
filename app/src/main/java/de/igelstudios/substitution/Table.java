@@ -5,9 +5,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
@@ -22,6 +19,10 @@ public class Table {
     }
 
     private void update(TableLayout table,List<Substitution> substitutions){
+        substitutions.sort((first,second) -> {
+            if(first.date.equals(second.date))return Integer.compare(first.lesson,second.lesson);
+            return Util.dateFromString(first.date).compareTo(Util.dateFromString(second.date));
+        });
         table.removeAllViews();
 
         TableRow header = new TableRow(context);
