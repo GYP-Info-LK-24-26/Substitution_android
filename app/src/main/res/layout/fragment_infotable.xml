@@ -4,47 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    tools:context=".InfoTable">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp">
+        <!--373dp,1240dp!-->
 
-        <Button
-            android:id="@+id/button_first"
+        <TextView
+            android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/next"
-            app:layout_constraintEnd_toStartOf="@+id/fullTable"
+            android:layout_marginTop="16dp"
+            android:text="Stundeplan"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.514"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TableLayout
             android:id="@+id/sub_table"
-            android:layout_width="384dp"
-            android:layout_height="645dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/reload_btn"></TableLayout>
+            app:layout_constraintTop_toBottomOf="@+id/textView2">
 
-        <Button
-            android:id="@+id/reload_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reload"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fullTable" />
+        </TableLayout>
 
-        <Button
-            android:id="@+id/fullTable"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stundenplan"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/button_first"
-            app:layout_constraintTop_toTopOf="parent" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

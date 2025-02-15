@@ -20,6 +20,8 @@
         <action
             android:id="@+id/action_FirstFragment_to_fullTableFragment"
             app:destination="@id/fullTableFragment" />
+        <action android:id="@+id/action_FirstFragment_to_infoTable"
+            app:destination="@+id/infoTable"/>
     </fragment>
     <fragment
         android:id="@+id/SecondFragment"
@@ -52,5 +54,20 @@
         <action
             android:id="@+id/action_fullTableFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/infoTable"
+        android:name="de.igelstudios.substitution.InfoTable"
+        android:label="Stundenplan">
+
+        <action
+            android:id="@+id/action_infoTable_to_FirstFragment"
+            app:destination="@id/FirstFragment" />
+        <action
+            android:id="@+id/action_infoTable_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_infoTable_to_fullTableFragment"
+            app:destination="@id/fullTableFragment" />
     </fragment>
 </navigation>

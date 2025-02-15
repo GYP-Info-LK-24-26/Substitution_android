@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean second = false;
     public boolean settings = false;
     public boolean fullTable = false;
+    public boolean infoTable = false;
     public static boolean isDebug = false;
     public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
 
@@ -79,8 +83,10 @@ public class MainActivity extends AppCompatActivity {
             FETCHER = new Fetcher(this.getApplicationContext(),"substitution");
             NOTIFIER = new Notifier(this.getApplicationContext());
             COURSES = new RequestedCourses(this.getApplicationContext(),"requested_courses");
+            COURSES.load(true);
             new Config(this.getApplicationContext());
             UPDATER = new Updater(this.getApplicationContext());
+            UPDATER.updateSavedVersion();
         }
 
         super.onCreate(savedInstanceState);
@@ -104,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(settings)navController.navigate(R.id.action_settingsFragment_to_fullTableFragment);
                 else if(second) navController.navigate(R.id.action_SecondFragment_to_fullTableFragment);
+                else if(infoTable) navController.navigate(R.id.action_infoTable_to_fullTableFragment);
                 else navController.navigate(R.id.action_FirstFragment_to_fullTableFragment);
             }
         });
@@ -142,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
             transaction.commit();*/
             if(fullTable) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_fullTableFragment_to_settingsFragment);
             else if(second) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_SecondFragment_to_settingsFragment);
+            else if(infoTable) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_infoTable_to_settingsFragment);
             else if(!settings) Navigation.findNavController(this, R.id.nav_host_fragment_content_main).navigate(R.id.action_FirstFragment_to_settingsFragment);
             return true;
         }
@@ -186,5 +194,32 @@ public class MainActivity extends AppCompatActivity {
 
     public View getView(){
         return findViewById(android.R.id.content);
+    }
+
+    public static boolean isConnectedToWiFi() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) instance.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // For devices with Android 10 (API level 29) or above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            if (activeNetwork == null) {
+                return false;
+            }
+
+            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+            if (capabilities != null) {
+                // Check if the active network is connected via Wi-Fi
+                return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+            }
+        } else {
+            // For devices below Android 10 (API level 29), use the old method
+            // This is still valid for older devices but using the newer API is recommended for future-proofing.
+            android.net.NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null) {
+                return networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            }
+        }
+
+        return false;
     }
 }

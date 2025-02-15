@@ -58,14 +58,6 @@ public class Config {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("pre_release",false);
     }
 
-    public boolean installBeta(){
-        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("beta",false);
-    }
-
-    public boolean installAlpha(){
-        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("alpha",false);
-    }
-
     public int getCurrentBuildNumber(){
         try {
             String val = new String(Util.read(Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("data.txt")));

@@ -1,11 +1,11 @@
 package de.igelstudios.substitution;
 
-import static android.icu.number.NumberRangeFormatter.with;
 import static androidx.core.content.ContextCompat.getSystemService;
 
 import static de.igelstudios.substitution.MainActivity.getInstance;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -14,8 +14,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
@@ -167,5 +167,32 @@ public class Notifier {
 
         NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
         compat.notify(2/*TODO replace with actual id*/,notification);
+    }
+
+    public void showSubstitutionPopUp(Substitution substitution){
+        StringBuilder text = new StringBuilder();
+        text.append(substitution.lesson).append(". Stunde\n");
+        if(substitution.teacher_new != null && !substitution.teacher_new.isEmpty())
+            text.append(substitution.teacher_new).append(" anstadt ");
+        text.append(substitution.teacher);
+        if(substitution.course_new != null && !substitution.course_new.isEmpty())
+            text.append("\nmit ").append(substitution.course_new);
+        if(substitution.room != null && !substitution.room.isEmpty())
+            text.append("\nin ").append(substitution.room);
+        text.append("\nam ").append(substitution.date);
+        text.append("\nInfo: ").append(substitution.info).append('\n');
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.getInstance());
+        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup, null);
+        ((TextView) dialogView.findViewById(R.id.popUp_text)).setText(text.toString());
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Ok",((dialog, which) -> {
+            dialog.dismiss();
+            InfoTable.locked = false;
+        }));
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

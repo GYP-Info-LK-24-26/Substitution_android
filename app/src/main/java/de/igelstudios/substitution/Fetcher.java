@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.util.ArrayList;
@@ -64,7 +65,7 @@ public class Fetcher extends SQLiteOpenHelper {
                 }
             }
     };
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     public Fetcher(@Nullable Context context, @Nullable String name) {
         super(context, name,null,DB_VERSION);
@@ -88,7 +89,7 @@ public class Fetcher extends SQLiteOpenHelper {
                     if (cr.moveToFirst()) {
                         do {
                             known.add(new Substitution(cr.getInt(0), cr.getString(1), cr.getString(2), cr.getString(3)
-                                    , cr.getString(4), cr.getString(5), cr.getString(6)));
+                                    , cr.getString(4), cr.getString(5), cr.getLong(6)));
                         } while (cr.moveToNext());
                     }
 
@@ -103,7 +104,7 @@ public class Fetcher extends SQLiteOpenHelper {
                     for (Substitution substitution : known) {
                         if (!contains(remote, substitution)) {
                             remove(substitution, db);
-                            change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet stat", "", substitution.date));
+                            change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet statt", "", substitution.getTime()));
                         }
                     }
 
@@ -121,7 +122,7 @@ public class Fetcher extends SQLiteOpenHelper {
             if(cr.moveToFirst()){
                 do{
                     known.add(new Substitution(cr.getInt(0),cr.getString(1),cr.getString(2),cr.getString(3)
-                            ,cr.getString(4),cr.getString(5),cr.getString(6)));
+                            ,cr.getString(4),cr.getString(5),cr.getLong(6)));
                 }while (cr.moveToNext());
             }
 
@@ -130,11 +131,8 @@ public class Fetcher extends SQLiteOpenHelper {
     }
 
     public void cleanOld(){
-        final Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        String str = cal.getTime().getDay() + "." + cal.getTime().getMonth() + "." + cal.getTime().getYear();
         SQLiteDatabase db = this.getReadableDatabase();
-        db.execSQL("DELETE FROM Substitiution WHERE date = ?",new String[]{str});
+        db.execSQL("DELETE FROM Substitution WHERE date < ?",new String[]{String.valueOf(LocalDate.now().toEpochDay())});
     }
 
     private boolean contains(List<Substitution> list,Substitution current){
@@ -146,7 +144,7 @@ public class Fetcher extends SQLiteOpenHelper {
 
     private void add(Substitution substitution, SQLiteDatabase db) {
         db.execSQL("INSERT INTO Substitution (lesson,teacher,course_new,teacher_new,info,room,date) VALUES (?,?,?,?,?,?,?)",new String[]{
-                String.valueOf(substitution.lesson),substitution.teacher, substitution.course_new,substitution.teacher_new,substitution.info,substitution.room,substitution.date
+                String.valueOf(substitution.lesson),substitution.teacher, substitution.course_new,substitution.teacher_new,substitution.info,substitution.room, String.valueOf(substitution.getTime())
         });
     }
 
@@ -204,7 +202,7 @@ public class Fetcher extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date TEXT,PRIMARY KEY(lesson,teacher,date));");
+        db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date INTEGER,PRIMARY KEY(lesson,teacher,date));");
     }
 
     @Override
@@ -213,6 +211,12 @@ public class Fetcher extends SQLiteOpenHelper {
         if(oldVersion == 1 && newVersion == 2){
             db.execSQL("DROP TABLE Substitution");
             db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date TEXT,PRIMARY KEY(lesson,teacher,date));");
+        }else if(oldVersion == 2 && newVersion == 3){
+            db.execSQL("DROP TABLE Substitution");
+            db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date INTEGER,PRIMARY KEY(lesson,teacher,date));");
+        }else if(oldVersion == 1 && newVersion == 3){
+            db.execSQL("DROP TABLE Substitution");
+            db.execSQL("CREATE TABLE Substitution (lesson INTEGER,teacher TEXT,course_new TEXT,teacher_new TEXT,info TEXT,room TEXT,date INTEGER,PRIMARY KEY(lesson,teacher,date));");
         }
     }
 

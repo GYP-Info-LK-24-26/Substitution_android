@@ -249,6 +249,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     }
     private static final int DB_VERSION = 2;
     public List<LessonCourse> selectedCourses;
+    public List<List<List<LessonCourse>>> selectedCoursesTable;
     public List<LessonCourse> lessons;
     public List<Course> allCourses;
     private boolean loaded = false;
@@ -257,6 +258,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
         super(context, name, null, DB_VERSION);
 
         selectedCourses = new ArrayList<>();
+        selectedCoursesTable = new ArrayList<>();
         allCourses = new ArrayList<>();
         lessons = new ArrayList<>();
     }
@@ -264,6 +266,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     public void reload(){
         loaded = false;
         selectedCourses = new ArrayList<>();
+        selectedCoursesTable = new ArrayList<>();
         allCourses = new ArrayList<>();
         lessons = new ArrayList<>();
         load();
@@ -328,6 +331,16 @@ public class RequestedCourses extends SQLiteOpenHelper {
                         break;
                     }
                 }
+            }
+
+            for (int i = 0; i < 5; i++) {
+                selectedCoursesTable.add(new ArrayList<>());
+                for (int j = 0; j < 11; j++) {
+                    selectedCoursesTable.get(i).add(new ArrayList<>());
+                }
+            }
+            for (LessonCourse selectedCourse : selectedCourses) {
+                selectedCoursesTable.get(selectedCourse.day - 1).get(selectedCourse.lesson - 1).add(selectedCourse);
             }
             future.complete(true);
         };

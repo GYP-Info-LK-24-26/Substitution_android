@@ -56,6 +56,10 @@ public class FirstFragment extends Fragment {
             MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges)
             ;
         });
+
+        binding.fullTable.setOnClickListener(v ->
+                NavHostFragment.findNavController(FirstFragment.this)
+                    .navigate(R.id.action_FirstFragment_to_infoTable));
     }
 
     @Override

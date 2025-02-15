@@ -52,10 +52,10 @@ public class SettingsFragment extends PreferenceFragmentCompat{
             return true;
         });
 
-        CheckBoxPreference alpha = findPreference("alpha");
-        CheckBoxPreference beta = findPreference("beta");
+        //CheckBoxPreference alpha = findPreference("alpha");
+        //CheckBoxPreference beta = findPreference("beta");
         CheckBoxPreference preRelease = findPreference("pre_release");
-        if(alpha.isChecked()){
+        /*if(alpha.isChecked()){
             beta.setChecked(true);
             beta.setEnabled(false);
         }
@@ -91,7 +91,7 @@ public class SettingsFragment extends PreferenceFragmentCompat{
             }
 
             return true;
-        });
+        });*/
 
         Preference version = findPreference("build_number");
         version.setTitle("build: " + Config.get().getCurrentBuildNumber());

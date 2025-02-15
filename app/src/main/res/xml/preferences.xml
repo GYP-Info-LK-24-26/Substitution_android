@@ -37,7 +37,7 @@
         app:key="pre_release"
         />
 
-    <CheckBoxPreference
+    <!--<CheckBoxPreference
         app:title="Download Beta versions"
         app:key="beta"
         />
@@ -45,7 +45,7 @@
     <CheckBoxPreference
         app:title="Download Alpha versions"
         app:key="alpha"
-        />
+        />!-->
 
     <Preference
     android:key="build_number"
