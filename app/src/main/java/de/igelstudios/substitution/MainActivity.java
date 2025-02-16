@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean infoTable = false;
     public static boolean isDebug = false;
     public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
+    public static final String VERSION_NAME = "0.3 Release Candidate 1.0";
 
 
     @Override
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             COURSES.load(true);
             new Config(this.getApplicationContext());
             UPDATER = new Updater(this.getApplicationContext());
-            UPDATER.updateSavedVersion();
+            //UPDATER.updateSavedVersion();
         }
 
         super.onCreate(savedInstanceState);

@@ -22,8 +22,8 @@
 
         <TableLayout
             android:id="@+id/sub_table"
-            android:layout_width="384dp"
-            android:layout_height="645dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -94,7 +94,7 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         });*/
 
         Preference version = findPreference("build_number");
-        version.setTitle("build: " + Config.get().getCurrentBuildNumber());
+        version.setTitle("Version: " + Config.get().getCurrentBuildNumber());
     }
 
     @Override

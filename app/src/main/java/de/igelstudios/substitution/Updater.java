@@ -37,20 +37,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * version file layout:
- * release version<br>
- * release version build number<br>
- * <br>
- * pre-release version<br>
- * pre-release version build number<br>
- * <br>
- * beta version<br>
- * beta version build number<br>
- * <br>
- * alpha version<br>
- * alpha version build number<br>
- */
 public class Updater {
     private Context context;
     private static final String gitURL = "https://api.github.com/";//"https://gyp-info-lk-24-26.github.io/Substitution_android/";
@@ -85,7 +71,7 @@ public class Updater {
                 return;
             }
 
-            String installed = PreferenceManager.getDefaultSharedPreferences(this.context).getString("version","");
+            String installed = PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
             int j = 0;
             while (j < response.size() && !response.get(j).name.equals(installed))j++;
             ///also install version if current version could not be found
@@ -96,7 +82,7 @@ public class Updater {
         return future;
     }
 
-    public void updateSavedVersion(){
+    /*public void updateSavedVersion(){
         if(PreferenceManager.getDefaultSharedPreferences(this.context).contains("version"))return;
         new Thread(() -> {
             List<Version> response = getVersions();
@@ -105,7 +91,7 @@ public class Updater {
             editor.putString("version",response.get(0).name);
             editor.apply();
         }).start();
-    }
+    }*/
 
     private Intent install(Version version,boolean installFile) {
             try {

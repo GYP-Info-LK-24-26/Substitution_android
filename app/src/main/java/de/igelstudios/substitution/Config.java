@@ -58,13 +58,7 @@ public class Config {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("pre_release",false);
     }
 
-    public int getCurrentBuildNumber(){
-        try {
-            String val = new String(Util.read(Objects.requireNonNull(this.getClass().getClassLoader()).getResourceAsStream("data.txt")));
-            return Integer.parseInt(val);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+    public String getCurrentBuildNumber(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
     }
 }
