@@ -39,12 +39,12 @@ public class InfoTable extends Fragment {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if(locked)return true;
-            locked = true;
             int y = (int) event.getY();
 
             int lineNumber = ((TextView) v).getLayout().getLineForVertical(y);
-            if(lineNumber == 0)return true;
-            RequestedCourses.LessonCourse course = MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson - 1).get(lineNumber - 1);
+            if(lineNumber >= MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson - 1).size())return true;
+            locked = true;
+            RequestedCourses.LessonCourse course = MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson - 1).get(lineNumber);
             List<Substitution> substitutions = MainActivity.getInstance().FETCHER.fetchLocal();
             for (Substitution substitution : substitutions) {
                 if(substitution.lesson != lesson || substitution.getDayId() != day || !substitution.teacher.equals(course.teacher))continue;
@@ -90,7 +90,10 @@ public class InfoTable extends Fragment {
             return;
         }*/
         subs.sort((first,second) -> {
-            if(first.date.equals(second.date))return Integer.compare(first.lesson,second.lesson);
+            if(first.date.equals(second.date)){
+                if(first.lesson == second.lesson)return first.teacher.compareTo(second.teacher);
+                return Integer.compare(first.lesson,second.lesson);
+            }
             return Util.dateFromString(first.date).compareTo(Util.dateFromString(second.date));
         });
 
@@ -110,10 +113,14 @@ public class InfoTable extends Fragment {
             int charCount = 0;
             boolean first = false;
             for (RequestedCourses.LessonCourse course : courses.get(i)) {
-                if(!subs.isEmpty() && subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher)){
-                    int color = Util.isCanceled(subs.get(current))?0xFFFF0000:0xFFFFFF00;
-                    spans.add(new Triple<>(charCount,charCount + 3,new ForegroundColorSpan(color)));
-                    current++;
+                if(!subs.isEmpty()) {
+                    while (current < subs.size() - 1 && subs.get(current).lesson <= i) current++;
+                    while (current < subs.size() - 1 && subs.get(current).lesson == i + 1 && !subs.get(current).teacher.equals(course.teacher))current++;
+                    if (subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher)) {
+                        int color = Util.isCanceled(subs.get(current)) ? 0xFFFF0000 : 0xFFFFFF00;
+                        spans.add(new Triple<>(charCount, charCount + 3, new ForegroundColorSpan(color)));
+                        current++;
+                    }
                 }
                 if(first)builder.append('\n');
                 builder.append(course.teacher);
@@ -139,7 +146,10 @@ public class InfoTable extends Fragment {
         List<Substitution> subs = MainActivity.getInstance().FETCHER.fetchLocal();
         TableLayout table = MainActivity.getInstance().findViewById(R.id.sub_table);
         subs.sort((first,second) -> {
-            if(first.date.equals(second.date))return Integer.compare(first.lesson,second.lesson);
+            if(first.date.equals(second.date)){
+                if(first.lesson == second.lesson)return first.teacher.compareTo(second.teacher);
+                return Integer.compare(first.lesson,second.lesson);
+            }
             return Util.dateFromString(first.date).compareTo(Util.dateFromString(second.date));
         });
 
@@ -153,15 +163,18 @@ public class InfoTable extends Fragment {
                 int charCount = 0;
                 boolean first = false;
                 for (RequestedCourses.LessonCourse course : courses.get(j).get(i)) {
-                    if (subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher) && subs.get(current).getDayId() == j) {
-                        int color = Util.isCanceled(subs.get(current)) ? 0xFFFF0000 : 0xFFFFFF00;
-                        spans.add(new Triple<>(charCount + 1, charCount + 4, new ForegroundColorSpan(color)));
-                        current++;
+                    if(!subs.isEmpty() && j == Util.dateFromString(subs.get(current).date).getDayOfWeek().ordinal()) {
+                        while (current < subs.size() - 1 && subs.get(current).lesson <= i) current++;
+                        while (current < subs.size() - 1 && subs.get(current).lesson == i + 1 && !subs.get(current).teacher.equals(course.teacher)) current++;
+                        if (subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher) && subs.get(current).getDayId() == j) {
+                            int color = Util.isCanceled(subs.get(current)) ? 0xFFFF0000 : 0xFFFFFF00;
+                            spans.add(new Triple<>(charCount, charCount + 3, new ForegroundColorSpan(color)));
+                            current++;
+                        }
                     }
-                    //if (first)
-                        builder.append('\n');
-                    builder.append(course.teacher).append("      ");
-                    charCount = builder.length();
+                    if(first)builder.append('\n');
+                    builder.append(course.teacher);
+                    charCount += 4;
                     first = true;
                 }
                 SpannableString span = new SpannableString(builder.toString());

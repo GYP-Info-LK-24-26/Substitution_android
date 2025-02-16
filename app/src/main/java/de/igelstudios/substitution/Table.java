@@ -19,7 +19,11 @@ public class Table {
 
     public Table(Context context){
         this.context = context;
-        liveData.observe(MainActivity.getInstance(),(data) -> this.updateShownTable());
+        liveData.observe(MainActivity.getInstance(),(data) -> {
+            if(MainActivity.getInstance().second)this.updateWholeTable();
+            else if(!(MainActivity.getInstance().settings || MainActivity.getInstance().fullTable || MainActivity.getInstance().infoTable))
+                this.updateShownTable();
+        });
     }
 
     private void update(TableLayout table,List<Substitution> substitutions){

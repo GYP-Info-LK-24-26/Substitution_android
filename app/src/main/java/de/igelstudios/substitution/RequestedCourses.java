@@ -342,6 +342,12 @@ public class RequestedCourses extends SQLiteOpenHelper {
             for (LessonCourse selectedCourse : selectedCourses) {
                 selectedCoursesTable.get(selectedCourse.day - 1).get(selectedCourse.lesson - 1).add(selectedCourse);
             }
+
+            for (List<List<LessonCourse>> day : selectedCoursesTable) {
+                for (List<LessonCourse> lesson : day) {
+                    lesson.sort(Comparator.comparing(lessonCourse -> lessonCourse.teacher));
+                }
+            }
             future.complete(true);
         };
         try {

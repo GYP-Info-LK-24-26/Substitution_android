@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean infoTable = false;
     public static boolean isDebug = false;
     public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
-    public static final String VERSION_NAME = "0.3 Release Candidate 1.0";
+    public static final String VERSION_NAME = "0.4 Release Candidate 1.0";
 
 
     @Override
