@@ -74,9 +74,9 @@ public class Updater {
 
             String installed = PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
             int j = 0;
-            while (j < response.size() && !response.get(j).name.equals(installed))j++;
+            while (j < response.size() && !response.get(j).name.equals(installed)) j++;
             ///also install version if current version could not be found
-            if(i <= j)future.complete(null);
+            if(i >= j)future.complete(null);
             else future.complete(install(response.get(i),installFile));
         }).start();
 
