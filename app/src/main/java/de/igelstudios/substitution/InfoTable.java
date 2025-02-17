@@ -176,7 +176,7 @@ public class InfoTable extends Fragment {
                 int charCount = 0;
                 boolean first = false;
                 for (RequestedCourses.LessonCourse course : courses.get(j).get(i)) {
-                    if(!subs.isEmpty() && j == Util.dateFromString(subs.get(current).date).getDayOfWeek().ordinal()) {
+                    if(!subs.isEmpty() && current < subs.size() && j == Util.dateFromString(subs.get(current).date).getDayOfWeek().ordinal()) {
                         //while (current < subs.size() - 1 && subs.get(current).lesson <= i) current++;
                         //while (current < subs.size() - 1 && subs.get(current).lesson == i + 1 && !subs.get(current).teacher.equals(course.teacher)) current++;
                         if (current < subs.size() && subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher) && subs.get(current).getDayId() == j) {
