@@ -34,6 +34,14 @@ public class SettingsFragment extends PreferenceFragmentCompat{
             }
         });
 
+        findPreference("cpyLogs").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(@NonNull Preference preference) {
+                Logger.get().toClipBoard();
+                return true;
+            }
+        });
+
         CheckBoxPreference preference = findPreference("debug");
         PreferenceCategory category = findPreference("debug_category");
 

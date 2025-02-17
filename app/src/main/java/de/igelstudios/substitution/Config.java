@@ -58,7 +58,15 @@ public class Config {
         return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("pre_release",false);
     }
 
+    public boolean showLessonNumbers(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("showInfoNumbers",false);
+    }
+
     public String getCurrentBuildNumber(){
         return PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
+    }
+
+    public boolean shouldLog(){
+        return PreferenceManager.getDefaultSharedPreferences(this.context).getBoolean("logging",false);
     }
 }

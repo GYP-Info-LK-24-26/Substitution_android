@@ -48,6 +48,7 @@ public class Updater {
         try {
             return downloadAndInstallApk(false).get();
         } catch (ExecutionException | InterruptedException e) {
+            Logger.get().write(e);
             throw new RuntimeException(e);
         }
     }
@@ -125,6 +126,7 @@ public class Updater {
                 return installApk(apkFile,installFile);
             } catch (Exception e) {
                 MainActivity.IS_LOADING.postValue(false);
+                Logger.get().write(e);
                 throw new RuntimeException(e);
             }
     }
@@ -176,6 +178,7 @@ public class Updater {
             versions.sort(Comparator.comparing(a -> Util.versionFromString(a.name)));
             return versions;
         } catch (JSONException e) {
+            Logger.get().write(e);
             throw new RuntimeException(e);
         }
     }

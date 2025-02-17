@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean infoTable = false;
     public static boolean isDebug = false;
     public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
-    public static final String VERSION_NAME = "0.4 Release Candidate 1.0";
+    public static final String VERSION_NAME = "0.5 Release Candidate 1.0";
 
 
     @Override
@@ -80,13 +80,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(SUBSTITUTION_TABLE == null){
+            new Config(this.getApplicationContext());
             SUBSTITUTION_TABLE = new Table(this.getApplicationContext());
             FETCHER = new Fetcher(this.getApplicationContext(),"substitution");
             NOTIFIER = new Notifier(this.getApplicationContext());
             COURSES = new RequestedCourses(this.getApplicationContext(),"requested_courses");
             COURSES.load(true);
-            new Config(this.getApplicationContext());
             UPDATER = new Updater(this.getApplicationContext());
+            new Logger(getInstance());
             //UPDATER.updateSavedVersion();
         }
 
@@ -168,12 +169,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if(requestCode != 0) super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length == 0)return;
         if(grantResults[0] != PackageManager.PERMISSION_GRANTED)System.exit(1);
     }
 
     public static void requestPermissions(){
         if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
-                Build.VERSION.SDK_INT >= 32) {
+                Build.VERSION.SDK_INT > 32) {
             ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);
         }
         if (ActivityCompat.checkSelfPermission(instance.getApplicationContext(), android.Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED) {

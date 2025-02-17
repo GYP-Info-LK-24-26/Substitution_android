@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.function.Function;
 
 public class RequestedCourses extends SQLiteOpenHelper {
+    private static boolean loadLock = false;
     @FunctionalInterface
     public static interface Empty{
         void execute(boolean value);
@@ -59,6 +61,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 }
 
             } catch (Exception e) {
+                Logger.get().write(e);
                 throw new RuntimeException(e);
             }
         }).start();
@@ -67,7 +70,6 @@ public class RequestedCourses extends SQLiteOpenHelper {
     public void loadData(Empty empty){
         new Thread(() -> {
             try {
-
                 String data = makeHttpsRequest("table");
                 if(data.charAt(0) == 'E'){
                     MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
@@ -109,6 +111,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                     }
                 }
             } catch (Exception e) {
+                Logger.get().write(e);
                 throw new RuntimeException(e);
             }
         }).start();
@@ -119,7 +122,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM Course;");
 
         for (Course course : courses) {
-            db.execSQL("INSERT INTO Course (id,teacher,subject) VALUES (?,?,?)",new String[]{String.valueOf(course.id),course.teacher,course.subject});
+            db.execSQL("INSERT OR IGNORE INTO Course (id,teacher,subject) VALUES (?,?,?)",new String[]{String.valueOf(course.id),course.teacher,course.subject});
         }
     }
 
@@ -128,7 +131,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
         db.execSQL("DELETE FROM Lesson;");
 
         for (LessonCourse lesson : lessons) {
-            db.execSQL("INSERT INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?)",
+            db.execSQL("INSERT OR IGNORE INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?)",
                     new String[]{String.valueOf(lesson.course),String.valueOf(lesson.lesson),lesson.teacher,String.valueOf(lesson.day)});
         }
     }
@@ -278,9 +281,15 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
     public void load(boolean await){
         if(loaded)return;
+        if(loadLock)return;
+        loadLock = true;
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         Empty empty = (val) -> {
-            if(!val)future.complete(false);
+            if(!val){
+                future.complete(false);
+                loadLock = false;
+                return;
+            }
             loaded = true;
             SQLiteDatabase db = this.getReadableDatabase();
             try(Cursor cr = db.rawQuery("SELECT Lesson.lessonTime,Lesson.teacher,Lesson.day,Lesson.course FROM Lesson INNER JOIN SELECTED_COURSES ON" +
@@ -349,12 +358,14 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 }
             }
             future.complete(true);
+            loadLock = false;
         };
         try {
             if(hasData())empty.execute(true);
             else loadData(empty);
             if(await)future.get();
         }catch (ExecutionException | InterruptedException e) {
+            Logger.get().write(e);
             throw new RuntimeException(e);
         }
     }
@@ -397,6 +408,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 if(course.id == edit.course){
                     edit.selected = false;
                     selectedCourses.remove(edit);
+                    selectedCoursesTable.get(edit.day - 1).get(edit.lesson - 1).remove(edit);
                 }
             }
 
@@ -409,6 +421,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 if(course.id == edit.course){
                     edit.selected = true;
                     selectedCourses.add(edit);
+                    selectedCoursesTable.get(edit.day - 1).get(edit.lesson - 1).add(edit);
                 }
             }
 

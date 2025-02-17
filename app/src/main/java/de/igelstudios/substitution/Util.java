@@ -43,19 +43,20 @@ public class Util {
         TriInt triInt = new TriInt();
         int firstSplit = version.indexOf('.');
         triInt.first = Integer.parseInt(version.substring(0,firstSplit));
-        int secondSplit = version.indexOf(firstSplit + 1,'.');
-        if(secondSplit == -1){
-            triInt.second = Integer.parseInt(version.substring(firstSplit + 1));
-            return triInt;
+        int secondSplit = firstSplit + 1;
+        while (secondSplit < version.length()){
+            if(!Character.isDigit(version.charAt(secondSplit)))break;
+            secondSplit++;
         }
         triInt.second = Integer.parseInt(version.substring(firstSplit + 1,secondSplit));
+
         int thirdSplit = secondSplit + 1;
         while (thirdSplit < version.length()){
             if(!Character.isDigit(version.charAt(thirdSplit)))break;
             thirdSplit++;
         }
 
-        triInt.third = Integer.parseInt(version.substring(secondSplit + 1,thirdSplit));
+        triInt.third = thirdSplit == secondSplit + 1?0:Integer.parseInt(version.substring(secondSplit + 1,thirdSplit));
         return triInt;
     }
 

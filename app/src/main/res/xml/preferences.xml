@@ -32,6 +32,21 @@
         app:title="Update"
         app:key="update"/>
 
+    <Preference
+        app:title="Copy Log file"
+        app:key="cpyLogs"/>
+
+    <CheckBoxPreference
+        app:title="Write Logs"
+        app:key="logging"
+        />
+
+    <CheckBoxPreference
+        app:title="Stunden nummern anzeigen"
+        app:key="showInfoNumbers"
+        android:checked="true"
+        />
+
     <CheckBoxPreference
         app:title="Download Pre-release versions"
         app:key="pre_release"

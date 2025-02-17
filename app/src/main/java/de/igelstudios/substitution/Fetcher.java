@@ -49,22 +49,6 @@ import javax.net.ssl.X509TrustManager;
 
 public class Fetcher extends SQLiteOpenHelper {
     private final Context context;
-    private static TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                @Override
-                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                }
-
-                @Override
-                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                }
-
-                @Override
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }
-    };
     private static final int DB_VERSION = 3;
 
     public Fetcher(@Nullable Context context, @Nullable String name) {
@@ -194,6 +178,7 @@ public class Fetcher extends SQLiteOpenHelper {
                 //future.complete(result);
 
             } catch (Exception e) {
+                Logger.get().write(e);
                 throw new RuntimeException(e);
                 //future.completeExceptionally(e);
             }

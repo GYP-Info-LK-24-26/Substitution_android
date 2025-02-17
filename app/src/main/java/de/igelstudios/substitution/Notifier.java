@@ -192,6 +192,11 @@ public class Notifier {
             InfoTable.locked = false;
         }));
 
+        builder.setOnDismissListener((dialog -> {
+            dialog.dismiss();
+            InfoTable.locked = false;
+        }));
+
         AlertDialog dialog = builder.create();
         dialog.show();
     }
