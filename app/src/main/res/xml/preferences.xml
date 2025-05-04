@@ -33,6 +33,10 @@
         app:key="update"/>
 
     <Preference
+        app:title="Show Log File"
+        app:key="log_show"/>
+
+    <Preference
         app:title="Copy Log file"
         app:key="cpyLogs"/>
 

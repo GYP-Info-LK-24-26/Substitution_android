@@ -46,6 +46,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_fullTableFragment"
             app:destination="@id/fullTableFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_fragmentLog_view"
+            app:destination="@id/fragmentLog_view" />
     </fragment>
     <fragment
         android:id="@+id/fullTableFragment"
@@ -70,4 +73,8 @@
             android:id="@+id/action_infoTable_to_fullTableFragment"
             app:destination="@id/fullTableFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/fragmentLog_view"
+        android:name="de.igelstudios.substitution.FragmentLogview"
+        android:label="FragmentLog_view" />
 </navigation>

@@ -48,7 +48,7 @@ public class Updater {
         try {
             return downloadAndInstallApk(false).get();
         } catch (ExecutionException | InterruptedException e) {
-            Logger.get().write(e);
+            Logger.get().write(this.getClass(),e);
             throw new RuntimeException(e);
         }
     }
@@ -72,7 +72,7 @@ public class Updater {
                 return;
             }
 
-            String installed = PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
+            String installed = Config.get().getCurrentBuildNumber(); //PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
             int j = 0;
             while (j < response.size() && !response.get(j).name.equals(installed)) j++;
             ///also install version if current version could not be found
@@ -126,7 +126,7 @@ public class Updater {
                 return installApk(apkFile,installFile);
             } catch (Exception e) {
                 MainActivity.IS_LOADING.postValue(false);
-                Logger.get().write(e);
+                Logger.get().write(this.getClass(),e);
                 throw new RuntimeException(e);
             }
     }
@@ -178,7 +178,7 @@ public class Updater {
             versions.sort(Comparator.comparing(a -> Util.versionFromString(a.name)));
             return versions;
         } catch (JSONException e) {
-            Logger.get().write(e);
+            Logger.get().write(this.getClass(),e);
             throw new RuntimeException(e);
         }
     }
@@ -213,6 +213,7 @@ public class Updater {
             urlConnection.disconnect();
         } catch (Exception e) {
             MainActivity.IS_LOADING.postValue(false);
+            Logger.get().write(this.getClass(),e);
             return "Exception: " + e.getMessage();
         }
         MainActivity.IS_LOADING.postValue(false);

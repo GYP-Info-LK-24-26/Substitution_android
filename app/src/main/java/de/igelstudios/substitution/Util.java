@@ -1,5 +1,10 @@
 package de.igelstudios.substitution;
 
+import android.app.AlertDialog;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,5 +70,24 @@ public class Util {
         String month = String.format(Locale.getDefault(),"%02d",date.getMonthValue());
         String year = String.valueOf(date.getYear());
         return day + "." + month + "." + year;
+    }
+
+    public static void showPopUp(String text){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.getInstance());
+        LayoutInflater inflater = MainActivity.getInstance().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.popup, null);
+        ((TextView) dialogView.findViewById(R.id.popUp_text)).setText(text);
+        builder.setView(dialogView);
+
+        builder.setNegativeButton("Ok",((dialog, which) -> {
+            dialog.dismiss();
+        }));
+
+        /*builder.setOnDismissListener((dialog -> {
+            dialog.dismiss();
+        }));*/
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }

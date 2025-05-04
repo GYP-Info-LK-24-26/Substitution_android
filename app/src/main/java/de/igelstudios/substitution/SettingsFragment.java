@@ -1,8 +1,11 @@
 package de.igelstudios.substitution;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
@@ -11,6 +14,7 @@ import androidx.preference.PreferenceManager;
 import androidx.preference.SwitchPreferenceCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat{
+    private boolean dirty = false;
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
@@ -40,6 +44,30 @@ public class SettingsFragment extends PreferenceFragmentCompat{
                 Logger.get().toClipBoard();
                 return true;
             }
+        });
+
+        findPreference("log_show").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(@NonNull Preference preference) {
+                NavHostFragment.findNavController(SettingsFragment.this).navigate(R.id.action_settingsFragment_to_fragmentLog_view);
+                //Util.showPopUp(Logger.get().read());
+                return true;
+            }
+        });
+
+        findPreference("first_name").setOnPreferenceChangeListener((preference, newValue) -> {
+            dirty = true;
+            return true;
+        });
+
+        findPreference("last_name").setOnPreferenceChangeListener((preference, newValue) -> {
+            dirty = true;
+            return true;
+        });
+
+        findPreference("birth_date").setOnPreferenceChangeListener((preference, newValue) -> {
+            dirty = true;
+            return true;
         });
 
         CheckBoxPreference preference = findPreference("debug");
@@ -117,7 +145,10 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         super.onDestroyView();
         MainActivity.getInstance().settings = false;
 
-        MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
+        if(dirty) {
+            MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
+            dirty = false;
+        }
         MainActivity.getInstance().COURSES.load();
     }
 }

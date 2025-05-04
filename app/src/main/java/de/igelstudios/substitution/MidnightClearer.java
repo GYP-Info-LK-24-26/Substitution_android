@@ -1,49 +1,41 @@
 package de.igelstudios.substitution;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
+import android.content.Intent;
 
 import java.util.Calendar;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
-public class MidnightClearer extends Worker {
-    public MidnightClearer(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-    }
+public class MidnightClearer extends BroadcastReceiver {
 
-    @NonNull
     @Override
-    public Result doWork() {
-        //i don't fucking know why but it works and this has probably never been called
+    public void onReceive(Context context, Intent intent) {
         MainActivity.getInstance().FETCHER.cleanOld();
 
         MainActivity.getInstance().NOTIFIER.askUpdate();
-        return Result.success();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR,1);
+        calendar.set(Calendar.HOUR,0);
+        calendar.set(Calendar.MINUTE,0);
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent newIntent = new Intent(context, MidnightClearer.class);
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, newIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        alarmManager.set(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),pendingIntent);
     }
 
     public static void schedule(Context context) {
-        Calendar now = Calendar.getInstance();
-        int hoursPastDay = now.get(Calendar.HOUR_OF_DAY);
-        int minutesPastHour = now.get(Calendar.MINUTE);
-        int secondsPastMinute = now.get(Calendar.SECOND);
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, MidnightClearer.class);
 
-        long initialDelay = (23 - hoursPastDay) * 3600 + (59 - minutesPastHour) * 60L - secondsPastMinute;
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(MidnightClearer.class, 1, TimeUnit.HOURS)
-                .setInitialDelay(initialDelay, TimeUnit.SECONDS)
-                .build();
-
-        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
-                "daily_task",
-                ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-                periodicWorkRequest
-        );
+        alarmManager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),pendingIntent);
     }
+
+
 }

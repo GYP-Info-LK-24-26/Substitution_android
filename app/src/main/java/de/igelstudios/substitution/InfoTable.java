@@ -186,7 +186,7 @@ public class InfoTable extends Fragment {
                         }
                     }
                     if(first)builder.append('\n');
-                    builder.append(course.teacher);
+                    builder.append(course.teacher).append("  ");
                     charCount += 4;
                     first = true;
                 }

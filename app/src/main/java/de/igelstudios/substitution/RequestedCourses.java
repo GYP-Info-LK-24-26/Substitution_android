@@ -61,7 +61,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 }
 
             } catch (Exception e) {
-                Logger.get().write(e);
+                Logger.get().write(this.getClass(),e);
                 throw new RuntimeException(e);
             }
         }).start();
@@ -111,7 +111,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                     }
                 }
             } catch (Exception e) {
-                Logger.get().write(e);
+                Logger.get().write(this.getClass(),e);
                 throw new RuntimeException(e);
             }
         }).start();
@@ -173,6 +173,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
             urlConnection.disconnect();
         } catch (Exception e) {
+            Logger.get().write(this.getClass(),e);
             result = "Exception: " + e.getMessage();
         }
         MainActivity.IS_LOADING.postValue(false);
@@ -365,7 +366,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
             else loadData(empty);
             if(await)future.get();
         }catch (ExecutionException | InterruptedException e) {
-            Logger.get().write(e);
+            Logger.get().write(this.getClass(),e);
             throw new RuntimeException(e);
         }
     }
@@ -389,7 +390,8 @@ public class RequestedCourses extends SQLiteOpenHelper {
         for (Substitution change : changes) {
             //now.setTime(new Date(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2))));
             now.set(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2)));
-            int dayID = now.get(Calendar.DAY_OF_WEEK) - 1;
+            //TODO this worked beforehand i don't really know why it works like this and not the other way,check if it keeps working
+            int dayID = now.get(Calendar.DAY_OF_WEEK) - 3;
             for (LessonCourse course : selectedCourses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);

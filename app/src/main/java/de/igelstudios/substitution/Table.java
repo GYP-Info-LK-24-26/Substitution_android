@@ -167,11 +167,10 @@ public class Table {
         table.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         double width = table.getMeasuredWidth();*/
         applySizeChanges(table);
-        System.out.println("test");
     }
 
     ///the table size is multiplied by this to prevent the table from overflowing to the sides
-    private static final double TABLE_MAGIC = 1.0532420183881735509245913817721884697675704956055d;
+    private static final double TABLE_MAGIC = 1.1;//1.0532420183881735509245913817721884697675704956055d;
 
     public void applySizeChanges(TableLayout table){
         table.setGravity(Gravity.CENTER);

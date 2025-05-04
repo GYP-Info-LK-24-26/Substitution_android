@@ -178,7 +178,7 @@ public class Fetcher extends SQLiteOpenHelper {
                 //future.complete(result);
 
             } catch (Exception e) {
-                Logger.get().write(e);
+                Logger.get().write(this.getClass(),e);
                 throw new RuntimeException(e);
                 //future.completeExceptionally(e);
             }

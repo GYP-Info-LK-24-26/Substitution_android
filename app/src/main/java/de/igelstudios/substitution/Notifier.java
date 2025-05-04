@@ -53,7 +53,7 @@ public class Notifier {
         //FirstFragment.instance.binding.reloadBtn.setEnabled(true);
 
         if(changes == null){
-            if(Config.get().isDebug())notifySimple("No changes in courses");
+            //if(Config.get().isDebug())notifySimple("No changes in courses");
             return;
         }
         changes = MainActivity.getInstance().COURSES.strip(changes);

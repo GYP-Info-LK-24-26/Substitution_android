@@ -60,12 +60,13 @@ public class MainActivity extends AppCompatActivity {
     public boolean infoTable = false;
     public static boolean isDebug = false;
     public static final MutableLiveData<Boolean> IS_LOADING = new MutableLiveData<>();
-    public static final String VERSION_NAME = "0.5";
+    public static String VERSION_NAME;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         isDebug = getResources().getBoolean(R.bool.debug);
+        VERSION_NAME = getResources().getString(R.string.version);
         instance = this;
         if (ActivityCompat.checkSelfPermission(this.getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.getInstance(),new String[]{Manifest.permission.POST_NOTIFICATIONS},0);

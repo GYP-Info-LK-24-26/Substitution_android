@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Calendar;
 
 public class Logger {
     private static Logger instance;
@@ -36,10 +37,11 @@ public class Logger {
         }
     }
 
-    public void write(Throwable throwable){
+    public void write(Class<?> clazz,Throwable throwable){
         if(!Config.get().shouldLog())return;
         try (PrintWriter writer = new PrintWriter(logFile)) {
-            writer.append(tag).append(": ");
+
+            writer.append(tag).append(":").append(clazz.getName()).append(": ").append(Calendar.getInstance().toInstant().toString()).append(": ");
             throwable.printStackTrace(writer);
             writer.append('\n');
         } catch (IOException e) {
@@ -58,6 +60,16 @@ public class Logger {
 
     public static Logger get(){
         return instance;
+    }
+
+    public String read(){
+        try(FileInputStream fis = new FileInputStream(logFile)) {
+            byte[] data = new byte[fis.available()];
+            if(fis.read(data) == -1)return "Error reading Logs";
+            return new String(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void toClipBoard(){

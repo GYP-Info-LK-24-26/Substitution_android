@@ -14,8 +14,7 @@ android {
         minSdk = 29
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
-
+        versionName = providers.gradleProperty("current_version").get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -36,27 +35,15 @@ android {
         viewBinding = true
     }
 
-    val keystorePropertiesFile = rootProject.file("keystore.properties")
-    val keystoreProperties = Properties()
-
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-    signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
-        }
-    }
-
     buildTypes {
         debug {
             resValue("bool", "debug", "true")
+            resValue("string","version",providers.gradleProperty("current_version").get())
         }
 
         release {
             resValue("bool", "debug", "false")
-            signingConfig = signingConfigs.getByName("release")
+            resValue("string","version",providers.gradleProperty("current_version").get())
         }
     }
 }
