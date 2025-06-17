@@ -391,7 +391,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
             //now.setTime(new Date(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2))));
             now.set(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2)));
             //TODO this worked beforehand i don't really know why it works like this and not the other way,check if it keeps working
-            int dayID = now.get(Calendar.DAY_OF_WEEK) - 3;
+            int dayID = now.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1;
             for (LessonCourse course : selectedCourses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);
