@@ -19,10 +19,13 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -32,6 +35,7 @@ import java.util.function.Function;
 
 public class RequestedCourses extends SQLiteOpenHelper {
     private static boolean loadLock = false;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     @FunctionalInterface
     public static interface Empty{
         void execute(boolean value);
@@ -385,13 +389,10 @@ public class RequestedCourses extends SQLiteOpenHelper {
     public List<Substitution> strip(List<Substitution> changes){
         load(true);
         List<Substitution> member = new ArrayList<>();
-        Calendar now = Calendar.getInstance();
 
         for (Substitution change : changes) {
-            //now.setTime(new Date(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2))));
-            now.set(Integer.parseInt(change.date.substring(6,10)),Integer.parseInt(change.date.substring(3,5)),Integer.parseInt(change.date.substring(0,2)));
-            //TODO this worked beforehand i don't really know why it works like this and not the other way,check if it keeps working
-            int dayID = now.get(Calendar.DAY_OF_WEEK_IN_MONTH) + 1;
+            LocalDate time = LocalDate.parse(change.date, formatter);
+            int dayID = time.getDayOfWeek().ordinal() + 1;
             for (LessonCourse course : selectedCourses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);
