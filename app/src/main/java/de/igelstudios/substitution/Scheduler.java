@@ -21,7 +21,7 @@ public class Scheduler extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         MainActivity.requestPermissions();
-        if(MainActivity.isConnectedToWiFi())MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
+        if(MainActivity.isConnectedToWiFi())MainActivity.getInstance().FETCHER.fetch();
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent newIntent = new Intent(context, Scheduler.class);

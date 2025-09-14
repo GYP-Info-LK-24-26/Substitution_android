@@ -146,7 +146,7 @@ public class SettingsFragment extends PreferenceFragmentCompat{
         MainActivity.getInstance().settings = false;
 
         if(dirty) {
-            MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges);
+            MainActivity.getInstance().FETCHER.fetch();
             dirty = false;
         }
         MainActivity.getInstance().COURSES.load();

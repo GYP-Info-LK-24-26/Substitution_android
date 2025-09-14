@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "635878850975",
+    "project_id": "igel-substituion-info",
+    "storage_bucket": "igel-substituion-info.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635878850975:android:d2442b131e2d674693fdaa",
+        "android_client_info": {
+          "package_name": "de.igelstudios.substitution"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo5Q7iCLTNNqMI4vqWfI5esyeChsCRPOw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

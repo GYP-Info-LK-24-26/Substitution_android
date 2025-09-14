@@ -56,46 +56,44 @@ public class Fetcher extends SQLiteOpenHelper {
         this.context = context;
     }
 
-    public void fetch(Consumer<List<Substitution>> consumer){
-        this.fetchRemote(new Consumer<List<Substitution>>() {
-            @Override
-            public void accept(List<Substitution> remote) {
-                List<Substitution> change = new ArrayList<>();
-                SQLiteDatabase db = Fetcher.this.getReadableDatabase();
-                try(Cursor cr = db.rawQuery("SELECT * FROM Substitution",null)) {
-
-                    if (remote == null){
-                        consumer.accept(null);
-                        return;
-                    }
-                    List<Substitution> known = new ArrayList<>();
-
-                    if (cr.moveToFirst()) {
-                        do {
-                            known.add(new Substitution(cr.getInt(0), cr.getString(1), cr.getString(2), cr.getString(3)
-                                    , cr.getString(4), cr.getString(5), cr.getLong(6)));
-                        } while (cr.moveToNext());
-                    }
-
-                    for (Substitution substitution : remote) {
-                        if (!contains(known, substitution)) change.add(substitution);
-                    }
-
-                    for (Substitution substitution : change) {
-                        add(substitution, db);
-                    }
-
-                    for (Substitution substitution : known) {
-                        if (!contains(remote, substitution)) {
-                            remove(substitution, db);
-                            change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet statt", "", substitution.getTime()));
-                        }
-                    }
-
-                    consumer.accept(change);
+    public void updateTable(List<Substitution> remote){
+            List<Substitution> change = new ArrayList<>();
+            SQLiteDatabase db = Fetcher.this.getReadableDatabase();
+            try(Cursor cr = db.rawQuery("SELECT * FROM Substitution",null)) {
+                if (remote == null){
+                    MainActivity.getInstance().NOTIFIER.notifieChanges(null);
+                    return;
                 }
+                List<Substitution> known = new ArrayList<>();
+
+                if (cr.moveToFirst()) {
+                    do {
+                        known.add(new Substitution(cr.getInt(0), cr.getString(1), cr.getString(2), cr.getString(3)
+                                , cr.getString(4), cr.getString(5), cr.getLong(6)));
+                    } while (cr.moveToNext());
+                }
+
+                for (Substitution substitution : remote) {
+                    if (!contains(known, substitution)) change.add(substitution);
+                }
+
+                for (Substitution substitution : change) {
+                    add(substitution, db);
+                }
+
+                for (Substitution substitution : known) {
+                    if (!contains(remote, substitution)) {
+                        remove(substitution, db);
+                        change.add(new Substitution(substitution.lesson, substitution.teacher, substitution.course_new, "", "Findet statt", "", substitution.getTime()));
+                    }
+                }
+
+                MainActivity.getInstance().NOTIFIER.notifieChanges(change);
             }
-        });
+    }
+
+    public void fetch(){
+        this.fetchRemote(this::updateTable);
     }
 
     public List<Substitution> fetchLocal(){

@@ -53,7 +53,7 @@ public class FirstFragment extends Fragment {
             if(isConnected && isWiFi) */
             locked = true;
             //binding.reloadBtn.setEnabled(false);
-            MainActivity.getInstance().FETCHER.fetch(MainActivity.getInstance().NOTIFIER::notifieChanges)
+            MainActivity.getInstance().FETCHER.fetch()
             ;
         });
 

@@ -3,6 +3,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -58,7 +59,10 @@ dependencies {
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.work.runtime)
     implementation(libs.preference)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation(platform(libs.firebase.bom))
 }
