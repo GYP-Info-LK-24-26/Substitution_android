@@ -63,7 +63,7 @@ public class Updater {
         CompletableFuture<Intent> future = new CompletableFuture<>();
         new Thread(() -> {
             List<Version> response = getVersions();
-            if(Config.get().isDebug() && !response.isEmpty()){
+            if(Config.get().isDebug() && !response.isEmpty() && installFile){
                 future.complete(install(response.get(0),installFile));
                 return;
             }
