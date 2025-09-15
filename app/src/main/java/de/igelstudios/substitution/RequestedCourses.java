@@ -133,6 +133,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     private void reloadLessons(List<LessonCourse> lessons){
         SQLiteDatabase db = this.getReadableDatabase();
         db.execSQL("DELETE FROM Lesson;");
+        db.execSQL("DELETE FROM Course");
 
         for (LessonCourse lesson : lessons) {
             db.execSQL("INSERT OR IGNORE INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?)",
@@ -285,6 +286,10 @@ public class RequestedCourses extends SQLiteOpenHelper {
     }
 
     public void load(boolean await){
+        load(await,false);
+    }
+
+    public void load(boolean await,boolean forceReleadCourses){
         if(loaded)return;
         if(loadLock)return;
         loadLock = true;
@@ -366,7 +371,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
             loadLock = false;
         };
         try {
-            if(hasData())empty.execute(true);
+            if(hasData() && !forceReleadCourses)empty.execute(true);
             else loadData(empty);
             if(await)future.get();
         }catch (ExecutionException | InterruptedException e) {

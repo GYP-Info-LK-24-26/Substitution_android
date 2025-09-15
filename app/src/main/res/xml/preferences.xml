@@ -29,6 +29,10 @@
         app:key="load_table"/>
 
     <Preference
+        app:title="Lade globalen Stundenplan"
+        app:key="load_all_table"/>
+
+    <Preference
         app:title="Update"
         app:key="update"/>
 

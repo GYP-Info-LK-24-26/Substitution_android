@@ -29,6 +29,12 @@ public class SettingsFragment extends PreferenceFragmentCompat{
             }
         });
 
+        Preference loadAllButton = findPreference("load_all_table");
+        loadAllButton.setOnPreferenceClickListener((preference) -> {
+            MainActivity.getInstance().COURSES.load(true,true);
+            return true;
+        });
+
         Preference updateBTN = findPreference("update");
         updateBTN.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
