@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             text.setText(newVal?"Loading":"");
         });
 
-        Scheduler.schedule(this.getApplicationContext());
+        //Scheduler.schedule(this.getApplicationContext());
         MidnightClearer.schedule(this.getApplicationContext());
     }
 
