@@ -63,6 +63,10 @@ public class Updater {
         CompletableFuture<Intent> future = new CompletableFuture<>();
         new Thread(() -> {
             List<Version> response = getVersions();
+            if(Config.get().isDebug() && !response.isEmpty()){
+                future.complete(install(response.get(0),installFile));
+                return;
+            }
             int i = 0;
             if(!Config.get().installPreRelease()){
                 while (i < response.size() && response.get(i).preRelease)i++;
@@ -120,9 +124,9 @@ public class Updater {
                 connection.disconnect();
 
                 MainActivity.IS_LOADING.postValue(false);
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this.context).edit();
-                editor.putString("version",version.name);
-                editor.apply();
+                //SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this.context).edit();
+                //editor.putString("version",version.name);
+                //editor.apply();
                 return installApk(apkFile,installFile);
             } catch (Exception e) {
                 MainActivity.IS_LOADING.postValue(false);

@@ -63,7 +63,7 @@ public class Config {
     }
 
     public String getCurrentBuildNumber(){
-        return PreferenceManager.getDefaultSharedPreferences(this.context).getString("version",MainActivity.VERSION_NAME);
+        return MainActivity.VERSION_NAME;
     }
 
     public boolean shouldLog(){

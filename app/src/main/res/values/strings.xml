@@ -8,4 +8,5 @@
     <string name="full_fragment_label">Stundenplan</string>
     <string name="next">Alle anzeigen</string>
     <string name="previous">Meine anzeigen</string>
+    <string name="fragmentLog_view">Log</string>
 </resources>

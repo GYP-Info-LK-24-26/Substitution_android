@@ -76,5 +76,5 @@
     <fragment
         android:id="@+id/fragmentLog_view"
         android:name="de.igelstudios.substitution.FragmentLogview"
-        android:label="FragmentLog_view" />
+        android:label="@string/fragmentLog_view" />
 </navigation>
