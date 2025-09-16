@@ -133,7 +133,6 @@ public class RequestedCourses extends SQLiteOpenHelper {
     private void reloadLessons(List<LessonCourse> lessons){
         SQLiteDatabase db = this.getReadableDatabase();
         db.execSQL("DELETE FROM Lesson;");
-        db.execSQL("DELETE FROM Course");
 
         for (LessonCourse lesson : lessons) {
             db.execSQL("INSERT OR IGNORE INTO Lesson (course,lessonTime,teacher,day) VALUES (?,?,?,?)",
@@ -256,7 +255,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
             return /*course + "  " +*/ teacher;
         }
     }
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
     public List<LessonCourse> selectedCourses;
     public List<List<List<LessonCourse>>> selectedCoursesTable;
     public List<LessonCourse> lessons;
@@ -290,7 +289,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
     }
 
     public void load(boolean await,boolean forceReleadCourses){
-        if(loaded)return;
+        if(loaded && !forceReleadCourses)return;
         if(loadLock)return;
         loadLock = true;
         CompletableFuture<Boolean> future = new CompletableFuture<>();
@@ -359,7 +358,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 }
             }
             for (LessonCourse selectedCourse : selectedCourses) {
-                selectedCoursesTable.get(selectedCourse.day - 1).get(selectedCourse.lesson - 1).add(selectedCourse);
+                selectedCoursesTable.get(selectedCourse.day).get(selectedCourse.lesson).add(selectedCourse);
             }
 
             for (List<List<LessonCourse>> day : selectedCoursesTable) {
@@ -416,7 +415,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 if(course.id == edit.course){
                     edit.selected = false;
                     selectedCourses.remove(edit);
-                    selectedCoursesTable.get(edit.day - 1).get(edit.lesson - 1).remove(edit);
+                    selectedCoursesTable.get(edit.day).get(edit.lesson).remove(edit);
                 }
             }
 
@@ -429,7 +428,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 if(course.id == edit.course){
                     edit.selected = true;
                     selectedCourses.add(edit);
-                    selectedCoursesTable.get(edit.day - 1).get(edit.lesson - 1).add(edit);
+                    selectedCoursesTable.get(edit.day).get(edit.lesson).add(edit);
                 }
             }
 
@@ -472,5 +471,9 @@ public class RequestedCourses extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(oldVersion == 1 && newVersion == 2) db.execSQL("CREATE TABLE IF NOT EXISTS Course (id INTEGER,teacher TEXT,subject TEXT, PRIMARY KEY(id))");
+        if(oldVersion < 3){
+            db.execSQL("DELETE FROM Lesson");
+            db.execSQL("DELETE FROM Course");
+        }
     }
 }

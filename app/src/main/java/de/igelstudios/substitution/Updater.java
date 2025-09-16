@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -44,13 +45,8 @@ public class Updater {
         this.context = context;
     }
 
-    public Intent update(){
-        try {
-            return downloadAndInstallApk(false).get();
-        } catch (ExecutionException | InterruptedException e) {
-            Logger.get().write(this.getClass(),e);
-            throw new RuntimeException(e);
-        }
+    public void update(Consumer<Intent> consumer){
+        downloadAndInstallApk(false).thenAccept(consumer);
     }
 
     public void updateForce(){
@@ -80,7 +76,7 @@ public class Updater {
             int j = 0;
             while (j < response.size() && !response.get(j).name.equals(installed)) j++;
             ///also install version if current version could not be found
-            if(i >= j)future.complete(null);
+            if(i >= j || i == 0)future.complete(null);
             else future.complete(install(response.get(i),installFile));
         }).start();
 

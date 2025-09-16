@@ -153,20 +153,22 @@ public class Notifier {
         }
 
 
-        Intent intent = getInstance().UPDATER.update();
-        if(intent == null)return;
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,intent, PendingIntent.FLAG_IMMUTABLE);
+        getInstance().UPDATER.update((intent -> {
+            if(intent == null)return;
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,intent, PendingIntent.FLAG_IMMUTABLE);
 
-        Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.notify)
-                .setContentTitle("Update")
-                .setContentText("Tap to update Substitution")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true).build();
+            Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.notify)
+                    .setContentTitle("Update")
+                    .setContentText("Tap to update Substitution")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true).build();
 
-        NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
-        compat.notify(2/*TODO replace with actual id*/,notification);
+            NotificationManagerCompat compat = NotificationManagerCompat.from(this.context);
+            compat.notify(2/*TODO replace with actual id*/,notification);
+        }));
+
     }
 
     public void showSubstitutionPopUp(Substitution substitution){

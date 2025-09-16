@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class InfoTable extends Fragment {
 
         public Listener(int day,int lesson){
             this.day = day;
-            this.lesson = lesson + 1;
+            this.lesson = lesson;
         }
 
         @Override
@@ -42,9 +43,9 @@ public class InfoTable extends Fragment {
             int y = (int) event.getY();
 
             int lineNumber = ((TextView) v).getLayout().getLineForVertical(y);
-            if(lineNumber >= MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson - 1).size())return true;
+            if(lineNumber >= MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson).size())return true;
 
-            RequestedCourses.LessonCourse course = MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson - 1).get(lineNumber);
+            RequestedCourses.LessonCourse course = MainActivity.getInstance().COURSES.selectedCoursesTable.get(day).get(lesson).get(lineNumber);
             List<Substitution> substitutions = MainActivity.getInstance().FETCHER.fetchLocal();
             for (Substitution substitution : substitutions) {
                 if(substitution.lesson != lesson || substitution.getDayId() != day || !substitution.teacher.equals(course.teacher))continue;
@@ -99,7 +100,9 @@ public class InfoTable extends Fragment {
         });
 
 
-        int dayID = LocalDate.now().getDayOfWeek().ordinal();
+        LocalDateTime time = LocalDateTime.now();
+        int dayID = time.getDayOfWeek().ordinal();
+        if(time.getHour() >= 18)dayID++;
         if(dayID >= 5)dayID = 0;
         if(!subs.isEmpty()) {
             Substitution change = subs.get(0);

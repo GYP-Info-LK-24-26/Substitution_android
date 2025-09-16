@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if(SUBSTITUTION_TABLE == null){
+            new Logger(getInstance());
             new Config(this.getApplicationContext());
             SUBSTITUTION_TABLE = new Table(this.getApplicationContext());
             FETCHER = new Fetcher(this.getApplicationContext(),"substitution");
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             COURSES = new RequestedCourses(this.getApplicationContext(),"requested_courses");
             COURSES.load(true);
             UPDATER = new Updater(this.getApplicationContext());
-            new Logger(getInstance());
             //UPDATER.updateSavedVersion();
         }
 
