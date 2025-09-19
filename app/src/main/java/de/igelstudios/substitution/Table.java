@@ -134,7 +134,7 @@ public class Table {
             TableRow row = new TableRow(context);
 
             TextView text = new TextView(context);
-            text.setText(/*"     " + */change.lesson + "  ");
+            text.setText(/*"     " + */(change.lesson + 1) + "  ");
             text.setTextColor(MainActivity.textColor.toArgb());
             row.addView(text);
             text = new TextView(context);

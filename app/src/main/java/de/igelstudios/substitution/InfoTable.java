@@ -120,7 +120,7 @@ public class InfoTable extends Fragment {
                 if(!subs.isEmpty()) {
                     //while (current < subs.size() - 1 && subs.get(current).lesson <= i) current++;
                     //while (current < subs.size() - 1 && subs.get(current).lesson == i + 1 && !subs.get(current).teacher.equals(course.teacher))current++;
-                    if (current < subs.size() && subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher)) {
+                    if (current < subs.size() && subs.get(current).lesson == i && subs.get(current).teacher.equals(course.teacher)) {
                         int color = Util.isCanceled(subs.get(current)) ? 0xFFFF0000 : 0xFFFFFF00;
                         spans.add(new Triple<>(charCount, charCount + 3, new ForegroundColorSpan(color)));
                         current++;
@@ -182,7 +182,7 @@ public class InfoTable extends Fragment {
                     if(!subs.isEmpty() && current < subs.size() && j == Util.dateFromString(subs.get(current).date).getDayOfWeek().ordinal()) {
                         //while (current < subs.size() - 1 && subs.get(current).lesson <= i) current++;
                         //while (current < subs.size() - 1 && subs.get(current).lesson == i + 1 && !subs.get(current).teacher.equals(course.teacher)) current++;
-                        if (current < subs.size() && subs.get(current).lesson == i + 1 && subs.get(current).teacher.equals(course.teacher) && subs.get(current).getDayId() == j) {
+                        if (current < subs.size() && subs.get(current).lesson == i && subs.get(current).teacher.equals(course.teacher) && subs.get(current).getDayId() == j) {
                             int color = Util.isCanceled(subs.get(current)) ? 0xFFFF0000 : 0xFFFFFF00;
                             spans.add(new Triple<>(charCount, charCount + 3, new ForegroundColorSpan(color)));
                             current++;

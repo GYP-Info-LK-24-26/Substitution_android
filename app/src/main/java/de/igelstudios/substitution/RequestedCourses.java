@@ -396,7 +396,7 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
         for (Substitution change : changes) {
             LocalDate time = LocalDate.parse(change.date, formatter);
-            int dayID = time.getDayOfWeek().ordinal() + 1;
+            int dayID = time.getDayOfWeek().ordinal();
             for (LessonCourse course : selectedCourses) {
                 if(change.lesson == course.lesson && change.teacher.equals(course.teacher) && dayID == course.day){
                     member.add(change);

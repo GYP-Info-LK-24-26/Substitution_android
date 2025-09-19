@@ -173,7 +173,7 @@ public class Notifier {
 
     public void showSubstitutionPopUp(Substitution substitution){
         StringBuilder text = new StringBuilder();
-        text.append(substitution.lesson).append(". Stunde\n");
+        text.append(substitution.lesson + 1).append(". Stunde\n");
         if(substitution.teacher_new != null && !substitution.teacher_new.isEmpty())
             text.append(substitution.teacher_new).append(" anstadt ");
         text.append(substitution.teacher);
