@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.NoRouteToHostException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -140,7 +141,11 @@ public class RequestedCourses extends SQLiteOpenHelper {
         }
     }
 
-    private String makeHttpsRequest(String path) {
+    private String makeHttpsRequest(String path){
+        return makeHttpsRequest(path,this.getClass());
+    }
+
+    public static String makeHttpsRequest(String path,Class<?> _this) {
         String result = "";
         try {
             MainActivity.IS_LOADING.postValue(true);
@@ -159,8 +164,8 @@ public class RequestedCourses extends SQLiteOpenHelper {
                 os.write(input, 0, input.length);
             }
 
-            urlConnection.setConnectTimeout(5000);
-            urlConnection.setReadTimeout(5000);
+            urlConnection.setConnectTimeout(15000);
+            urlConnection.setReadTimeout(15000);
 
             int statusCode = urlConnection.getResponseCode();
             if (statusCode == HttpURLConnection.HTTP_OK) {
@@ -177,7 +182,8 @@ public class RequestedCourses extends SQLiteOpenHelper {
 
             urlConnection.disconnect();
         } catch (Exception e) {
-            Logger.get().write(this.getClass(),e);
+            if(e instanceof NoRouteToHostException) Logger.get().write(_this,"Host not found");
+            else Logger.get().write(_this,e);
             result = "Exception: " + e.getMessage();
         }
         MainActivity.IS_LOADING.postValue(false);

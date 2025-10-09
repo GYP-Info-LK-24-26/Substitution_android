@@ -153,10 +153,10 @@ public class Fetcher extends SQLiteOpenHelper {
         new Thread(() -> {
             try {
 
-                String data = makeHttpsRequest();
+                String data = RequestedCourses.makeHttpsRequest("substitution",this.getClass());
                 List<Substitution> subs = new ArrayList<>();
                 if(data.charAt(0) == 'E'){
-                    MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection");
+                    MainActivity.getInstance().NOTIFIER.notifySimple("An error occurred during the connection " + data);
                     consumer.accept(null);
                     return;
                 }else if(data.equals("69420")){
@@ -203,46 +203,5 @@ public class Fetcher extends SQLiteOpenHelper {
         }
     }
 
-    private String makeHttpsRequest() {
-        String result = "";
-        try {
-            MainActivity.IS_LOADING.postValue(true);
-            URL url = new URL(Config.get().getConnectionURL() + "substitution/");
 
-            // Open connection
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/json");
-            urlConnection.setRequestProperty("Accept", "application/json");
-            urlConnection.setDoOutput(true);
-
-            try(OutputStream os = urlConnection.getOutputStream()) {
-                String json = "[\"" + Config.get().getName() + "\",\"" + Config.get().getLast_name() + "\",\"" + Config.get().getBirth_date() + "\",\"" + Config.get().getKey() + "\"]";
-                byte[] input = json.getBytes(StandardCharsets.UTF_8);
-                os.write(input, 0, input.length);
-            }
-
-            urlConnection.setConnectTimeout(15000);
-            urlConnection.setReadTimeout(15000);
-
-            int statusCode = urlConnection.getResponseCode();
-            if (statusCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-                StringBuilder stringBuilder = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                result = stringBuilder.toString();
-            } else {
-                result = "Error: " + statusCode;
-            }
-
-            urlConnection.disconnect();
-        } catch (Exception e) {
-            result = "Exception: " + e.getMessage();
-        }
-        MainActivity.IS_LOADING.postValue(false);
-        return result;
-    }
 }

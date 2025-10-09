@@ -104,10 +104,11 @@ public class InfoTable extends Fragment {
         int dayID = time.getDayOfWeek().ordinal();
         if(time.getHour() >= 18)dayID++;
         if(dayID >= 5)dayID = 0;
-        if(!subs.isEmpty()) {
+        //TODO why the fuck did i think it would be a good idea to make the first shown day the one with the first substitution
+        /*if(!subs.isEmpty()) {
             Substitution change = subs.get(0);
             dayID = Util.dateFromString(change.date).getDayOfWeek().ordinal(); //now.get(Calendar.DAY_OF_WEEK);
-        }
+        }*/
 
         int current = 0;
         List<List<RequestedCourses.LessonCourse>> courses = MainActivity.getInstance().COURSES.selectedCoursesTable.get(dayID);

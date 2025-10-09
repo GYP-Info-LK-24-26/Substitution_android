@@ -49,6 +49,18 @@ public class Logger {
         }
     }
 
+    public void write(Class<?> clazz,String cause){
+        if(!Config.get().shouldLog())return;
+        try (PrintWriter writer = new PrintWriter(logFile)) {
+
+            writer.append(tag).append(":").append(clazz.getName()).append(": ").append(Calendar.getInstance().toInstant().toString()).append(": ");
+            writer.append(cause);
+            writer.append('\n');
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void write(String string){
         if(!Config.get().shouldLog())return;
         try (PrintWriter writer = new PrintWriter(logFile)) {
